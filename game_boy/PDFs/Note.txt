@@ -1,0 +1,23 @@
+-----------------------------
+Notice d’utilisation — Console Portable
+-----------------------------
+
+Merci d’avoir choisi cette console portable. Veuillez suivre les instructions ci-dessous pour une utilisation optimale.
+
+1. Branchez l’appareil via le port USB-C.
+2. L’écran s’allume automatiquement.
+3. Manipulez la console dans différentes orientations.
+4. Pour saisir un code, sélectionnez une couleur/orientation puis appuyez sur le bouton bleu. Répétez l’opération quatre fois.
+5. Pour réinitialiser la saisie, appuyez sur le bouton rouge.
+6. Un message s’affichera à l’écran après validation.
+
+Tableau de correspondance
+-------------------------
+| Orientation | Couleur  |
+|:-----------:|:--------:|
+| Plat        | Vert     |
+| Retourne    | Rouge    |
+| Gauche      | Bleu     |
+| Droite      | Jaune    |
+| Avant       | Orange   |
+| Arrière     | Magenta  |
