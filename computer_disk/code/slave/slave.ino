@@ -239,6 +239,9 @@ void handleColor(int id)
   Serial.println(id);
   switch (id)
   {
+  case 0:
+    lcd.setRGB(0, 0, 0);
+    break;
   case 1:
     lcd.setRGB(255, 0, 0);
     break;
@@ -283,7 +286,7 @@ void handleBuzzer(int id)
 
 void handleLed(int id)
 {
-  Serial.print("SEQ_LED ");
+  Serial.print("LED PATTERN ");
   Serial.println(id);
   switch (id)
   {
@@ -321,7 +324,7 @@ void handleCommand(char *c)
     handleColor(val);
   else if (strcmp(c, "buzz") == 0)
     handleBuzzer(val);
-  else if (strcmp(c, "seq_led") == 0)
+  else if (strcmp(c, "leds") == 0)
     handleLed(val);
   else if (strcmp(c, "open") == 0)
     key_open();
