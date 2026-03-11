@@ -22,6 +22,10 @@ L'appareil détecte son orientation grâce à l'accéléromètre/gyroscope et af
 4. Le message correspondant au code s'affiche.
 5. Pour recommencer, appuyer sur le bouton rouge.
 
+#### Détail technique
+
+L'accéléromètre/gyroscope détecte l'orientation de l'appareil. Chaque orientation correspond à une couleur affichée sur l'écran LCD et à une lettre pour le code. Le code est validé lorsque 4 lettres sont saisies.
+
 ### Couleur - Orientation
 |Orientation|Couleur|Numéro|
 |:------------:|:-----:|:-----:|
@@ -32,24 +36,21 @@ L'appareil détecte son orientation grâce à l'accéléromètre/gyroscope et af
 |Avant      |Orange     |5|
 |Arriere    |Magenta    |6|
 
-#### Détail technique
-
-L'accéléromètre/gyroscope détecte l'orientation de l'appareil. Chaque orientation correspond à une couleur affichée sur l'écran LCD et à une lettre pour le code. Le code est validé lorsque 4 lettres sont saisies.
 
 ### Glossaire
-|Orientation                            |Code secret  |Texte|
-|:-------------------------------------:|:-----------:|:-----:|
-|Plat, Gauche, Avant, Retourne          |V - B - O - R|Cette disquette est placée avant OMVB|
-|Retourne, Droite, Gauche, Plat         |R - B - J - V|BRJO est la première disquette|
-|Avant, Arriere, Plat, Gauche           |O - M - V - B|Je suis placée juste après VBOR|
-|Droite, Arriere, Retourne, Gauche      |J - M - R - B|VBOR est la dernière disquette|
-|Avant, Droite, Plat, Arriere           |O - J - V - M|Je suis entre VBOR et BRJO|
-|Gauche, Retourne, Droite, Avant        |B - R - B - O|Je suis placée après OMVB|
+|Orientation                            |Code secret  |Texte||
+|:-------------------------------------:|:-----------:|:-----:|:-:|
+|Plat, Gauche, Avant, Retourne          |V - B - O - R|La troisième cle commence par V|✅3|
+|Avant, Arriere, Plat, Gauche           |O - M - V - B|Les cles encore utilisables contiennent la lettre B|✅2|
+|Droite, Arriere, Retourne, Gauche      |J - M - R - B|La cle 1 commence par une lettre plus proche de A que celle de la 2e|✅1|
+|Retourne, Droite, Gauche, Plat         |R - B - J - V|Une cle valide ne commence jamais par R|❌|
+|Avant, Droite, Plat, Arriere           |O - J - V - M|Une seule cle commence par une voyelle|❌|
+|Gauche, Retourne, Droite, Avant        |B - R - B - O|Les cles valides ne commencent pas par B|❌|
 |Plat, Plat, Plat, Plat                 |V - V - V - V|Message 1  |X|
 |Retourne, Retourne, Retourne, Retourne |R - R - R - R|Message 1  |X|
 
 ## Dépendances logicielles
 
 - Bibliothèque Grove LCD RGB Backlight
-- Bibliothèque Grove 6-Axis Accelerometer & Gyroscope
+- Bibliothèque Grove 6-Axis Accelerometer & Gyroscope   
 - Bibliothèque pour gestion des boutons
