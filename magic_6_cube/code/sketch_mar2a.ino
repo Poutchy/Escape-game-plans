@@ -15,17 +15,19 @@ int scrollPos = 0;
 unsigned long lastScrollTime = 0;
 const int SCROLL_INTERVAL = 300;
 
-// ── Dictionnaire de codes secrets ─────────────────────────────
 struct Secret {
   int code[4];
   const char* message;
 };
 
 Secret secrets[] = {
-  { { 1, 1, 1, 1 }, "    Tu fais quoi là c'est pas bon du tout" },
-  { { 1, 3, 5, 2 }, "    Cette disquette est placée avant OMVB" },  // Plat, Gauche, Avant, Retourne
-  { { 2, 4, 3, 1 }, "    Coffre B ouvert !" },                      // Retourne, Droite, Gauche, Plat
-  { { 5, 6, 1, 3 }, "    Message secret !" }                        // Avant, Arriere, Plat, Gauche
+  { { 1, 1, 1, 1 }, "    Bouton rouge pour remettre un code" },
+  { { 1, 3, 5, 2 }, "    La troisième cle commence par V" },
+  { { 5, 6, 1, 3 }, "    Les cles encore utilisables contiennent toutes la lettre B" },
+  { { 4, 6, 2, 3 }, "    La cle 1 commence par une lettre plus proche de A que celle de la 2e" },
+  { { 2, 3, 4, 1 }, "    Une cle valide ne commence jamais par R" },
+  { { 5, 4, 1, 6 }, "    Une seule cle fonctionnelle contient la lettre O" },
+  { { 3, 2, 3, 5 }, "    Les cles valides ne commencent jamais par B" },
 };
 const int NUM_SECRETS = sizeof(secrets) / sizeof(secrets[0]);
 
@@ -35,7 +37,6 @@ int indexCode = 0;
 bool unlocked = false;
 int lastButtonState = HIGH;
 
-// couleurs et lettres associées aux orientations
 const int couleurs[6][3] = {
   { 0, 255, 0 },    // Plat
   { 255, 0, 0 },    // Retourne
@@ -48,7 +49,6 @@ const int couleurs[6][3] = {
 const char* labels[6] = { "Plat", "Retourne", "Gauche", "Droite", "Avant", "Arriere" };
 const char letters[6] = { 'V', 'R', 'B', 'J', 'O', 'M' };
 
-// ── Orientation du capteur ─────────────────────────────
 int getOrientation(float ax, float ay, float az) {
   float absX = abs(ax);
   float absY = abs(ay);
@@ -56,7 +56,6 @@ int getOrientation(float ax, float ay, float az) {
 
   int orientation;
 
-  // Détection brute du capteur
   if (absZ > absX && absZ > absY)
     orientation = az > 0 ? 1 : 2;
 
@@ -66,7 +65,6 @@ int getOrientation(float ax, float ay, float az) {
   else
     orientation = ay > 0 ? 4 : 3;
 
-  // ── Correction selon ton montage ──
   switch (orientation) {
     case 1: return 5;  // Plat -> Avant
     case 5: return 1;  // Avant -> Plat
@@ -79,7 +77,6 @@ int getOrientation(float ax, float ay, float az) {
   return orientation;
 }
 
-// ── Reset du code ─────────────────────────────
 void resetCode() {
   indexCode = 0;
   unlocked = false;
@@ -89,55 +86,64 @@ void resetCode() {
   lcd.print("Entrez le code");
 }
 
-// ── Affiche les lettres entrées ─────────────────────────────
 void showEnteredLetters() {
+
+  lcd.setCursor(0, 1);
+  lcd.print("                ");  // efface la ligne
+
   lcd.setCursor(0, 1);
   lcd.print("Code: ");
+
   for (int i = 0; i < indexCode; i++) {
     int idx = enteredCode[i] - 1;
     lcd.print(letters[idx]);
     lcd.print(" ");
   }
+
   for (int i = indexCode; i < CODE_LENGTH; i++) {
     lcd.print("_ ");
   }
 }
 
 void scrollMessage() {
-  if (!unlockedMessage) return;
+  if (!unlockedMessage || strlen(unlockedMessage) == 0) return;
 
   int len = strlen(unlockedMessage);
+  if (len == 0) return;
 
   if (millis() - lastScrollTime >= SCROLL_INTERVAL) {
     lastScrollTime = millis();
 
     char buffer[17];
 
+    // Ligne 1 : caractères 0 à 15
     for (int i = 0; i < 16; i++) {
-      int index = (scrollPos + i) % len;
-
-      if (index < len)
-        buffer[i] = unlockedMessage[index];
-      else
-        buffer[i] = ' ';
+      buffer[i] = unlockedMessage[(scrollPos + i) % len];
     }
-
     buffer[16] = '\0';
-
     lcd.setCursor(0, 0);
+    lcd.print(buffer);
+
+    // Ligne 2 : caractères 16 à 31 (suite du texte)
+    for (int i = 0; i < 16; i++) {
+      buffer[i] = unlockedMessage[(scrollPos + 16 + i) % len];
+    }
+    buffer[16] = '\0';
+    lcd.setCursor(0, 1);
     lcd.print(buffer);
 
     scrollPos = (scrollPos + 1) % len;
   }
 }
 
-// ── Setup ──────────────  ───────────────
 void setup() {
   Serial.begin(115200);
 
   pinMode(LED_PIN, OUTPUT);
   pinMode(BUTTON_PIN, INPUT_PULLUP);
-  pinMode(RESET_LED_PIN, INPUT_PULLUP);
+
+  pinMode(RESET_LED_PIN, OUTPUT);
+  digitalWrite(RESET_LED_PIN, HIGH);
   pinMode(RESET_BUTTON_PIN, INPUT_PULLUP);
 
   lcd.begin(16, 2);
@@ -151,12 +157,13 @@ void setup() {
   resetCode();
 }
 
-// ── Loop principal ─────────────────────────────
 void loop() {
   int resetState = digitalRead(RESET_BUTTON_PIN);
 
   if (resetState == LOW) {
     Serial.println("RESET MANUEL");
+
+    digitalWrite(RESET_LED_PIN, LOW);
 
     lcd.setRGB(255, 0, 0);
     lcd.clear();
@@ -164,6 +171,7 @@ void loop() {
 
     delay(500);
 
+    digitalWrite(RESET_LED_PIN, HIGH);
     resetCode();
   }
 
@@ -186,7 +194,6 @@ void loop() {
 
   showEnteredLetters();
 
-  // lecture bouton
   int buttonState = digitalRead(BUTTON_PIN);
 
   if (buttonState == LOW && lastButtonState == HIGH) {
@@ -196,7 +203,7 @@ void loop() {
     indexCode++;
 
     digitalWrite(LED_PIN, HIGH);
-    delay(100);
+    delay(150);
     digitalWrite(LED_PIN, LOW);
 
     if (indexCode == CODE_LENGTH) {
