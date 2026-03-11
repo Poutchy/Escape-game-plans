@@ -1,0 +1,259 @@
+================================================================================
+  V . E . E . C .   --   V E R Y   E T H I C A L   E N T E R P R I S E   C O .
+  DIVISION SYSTEMES AVANCES & SECURITE INFORMATIQUE CRITIQUE
+================================================================================
+
+    DOCUMENTATION TECHNIQUE OFFICIELLE -- USAGE INTERNE UNIQUEMENT
+    --------------------------------------------------------------
+    SYSTEME DE TRAITEMENT SEQUENTIEL PAR SUPPORTS AMOVIBLES
+    UNITE CENTRALE MULTIPROCESSEUR DE SECURITE -- MOD. VEEC-9000X
+
+    Reference interne   :  VEEC-DOC-SYS-0042-REV.C
+    Classification      :  CONFIDENTIEL -- DIFFUSION RESTREINTE (NIVEAU 4)
+    Redacteur           :  Dpt. R&D -- Bureau des Systemes Critiques
+    Date d'emission     :  14 / 03 / 1997
+    Derniere revision   :  22 / 11 / 1998
+    Version document    :  3.2.1-STABLE
+
+================================================================================
+  /!\ AVERTISSEMENT LEGAL ET SECURITAIRE /!\
+================================================================================
+
+  Ce document est la propriete exclusive de la Very Ethical Enterprise Compagny
+  (V.E.E.C.), enregistree sous le numero SIRET 412 098 337 00029.
+  Toute reproduction, diffusion ou consultation non autorisee constitue une
+  violation des articles L.335-2 et suivants du Code de la Propriete
+  Intellectuelle et sera poursuivie avec la plus grande rigueur par le Service
+  Juridique Interne (SJI) de V.E.E.C.
+
+  L'acces a ce document est reserve au personnel habilite de niveau 4 ou
+  superieur. Toute consultation doit etre consignee dans le Registre de
+  Diffusion Securisee (RDS-09), disponible aupres du Bureau de la Direction
+  Generale, sur demande ecrite signee en double exemplaire et contresignee
+  par un responsable de niveau 5.
+
+================================================================================
+  I. PRESENTATION GENERALE DU SYSTEME VEEC-9000X
+================================================================================
+
+  Le VEEC-9000X est un systeme de traitement, d'archivage et de securisation
+  de l'information a haute criticite, developpe en interne par les equipes de
+  la Division Systemes Avances de V.E.E.C. entre 1991 et 1996, sous la
+  supervision directe du Professeur DUPOND O., Directeur des Sciences
+  Appliquees et Responsable Scientifique en Chef de l'entreprise.
+
+  Ce systeme constitue le coeur operationnel du Dispositif de Securite
+  Automatisee Peripherique (DSAP). Il s'active automatiquement des lors que
+  les capteurs environnementaux de la Salle Serveur Principale (SSP-***)
+  detectent une intrusion non autorisee.
+
+  IMPORTANT : Une fois le systeme active, un minuteur de compte a rebours
+  interne (MCI-7) se declenche. A l'expiration du delai imparti, l'Unite
+  de Diffusion Externe (UDE) procede a la transmission integrale et
+  irreversible de l'ensemble des donnees consolidees vers les infrastructures
+  reseau publiques.
+
+  La nature et la portee de ces donnees ne seront pas detaillees dans ce
+  document. Se referer au Dossier Classificatoire Interne DCI-001 (acces
+  niveau 5 requis).
+
+  /!\ Ce processus, une fois enclenche, ne peut etre interrompu que par
+  l'utilisation conjointe des CLES DE SECURITE MAITRES, attribuees aux
+  Professeurs DUPOND I., DUPOND A. et DUPOND U. Les procedures de
+  deverrouillage associees a ces cles ne sont pas couvertes par le present
+  document. Se referer aux Documents Securises Associes (DSA-04 a DSA-06). /!\
+
+================================================================================
+  II. ARCHITECTURE FONCTIONNELLE DU VEEC-9000X
+================================================================================
+
+  II.1. -- Vue d'ensemble
+
+  Le VEEC-9000X repose sur une architecture tripartite a validation sequentielle
+  parallele (VSP-3). Il integre trois (3) Unites de Lecture Documentaire (ULD)
+  independantes, chacune connectee a l'Unite de Controle Centrale (UCC) via
+  le Bus de Communication Interne a Haut Debit (BCIHD-II, proprietaire VEEC).
+
+  Le principe fondamental de fonctionnement repose sur l'insertion de supports
+  amovibles normalises (voir Section III) dans chacune des trois ULD.
+  La validation du systeme requiert que chaque unite recoit le support
+  amovible correspondant a son emplacement dedie.
+
+  L'UCC procede ensuite a une verification d'integrite en temps reel sur
+  l'ensemble des trois canaux. Si et seulement si les trois canaux renvoient
+  simultanement un signal de validation positif (SVP = 1), l'UCC transmet
+  un Signal de Desactivation Securisee (SDS) au Module de Gestion du
+  Minuteur (MGM-7), qui suspend alors le compte a rebours.
+
+  En cas de non-conformite sur un ou plusieurs canaux (SVP != 1), aucune
+  action n'est entreprise et le minuteur poursuit son decompte.
+
+  II.2. -- Schema de principe (simplifie)
+
+       +---------------------------------------------+
+       |          VEEC-9000X -- UCC CENTRALE         |
+       |                                             |
+       |   [ULD-1] --->  Verif. Canal A  --->  SVP-A |
+       |   [ULD-2] --->  Verif. Canal B  --->  SVP-B +---> SDS si A+B+C=1
+       |   [ULD-3] --->  Verif. Canal C  --->  SVP-C |
+       |                                             |
+       |                  MGM-7 (minuteur)           |
+       +---------------------------------------------+
+
+  II.3. -- Sequence d'operation detaillee
+
+  Etape 1 -- DETECTION DE PRESENCE
+    L'operateur insere un support amovible dans l'une des trois ULD.
+    Le sous-systeme de detection de presence de l'ULD concernee confirme
+    l'insertion et transmet un signal d'activation au canal correspondant.
+
+  Etape 2 -- VERIFICATION D'INTEGRITE DU SUPPORT
+    Une fois la presence du support confirmee, le systeme de verification
+    interne de l'ULD effectue une analyse de conformite du support.
+    Ce processus est entierement automatise et transparent pour l'operateur.
+    Si le support est conforme pour cet emplacement, le canal renvoie SVP = 1.
+    Dans le cas contraire, le canal reste en etat SVP = 0.
+
+  Etape 3 -- VALIDATION GLOBALE
+    Lorsque les trois ULD signalent une presence de support :
+    - Si SVP-A = 1  ET  SVP-B = 1  ET  SVP-C = 1 :
+        --> Signal de Desactivation Securisee (SDS) emis.
+        --> Le minuteur MGM-7 est suspendu.
+        --> Confirmation visuelle sur le panneau de statut.
+    - Si au moins un SVP = 0 :
+        --> Aucun SDS emis.
+        --> Le minuteur poursuit son decompte normalement.
+        --> Une LED de statut indique le canal non conforme.
+
+================================================================================
+  III. SUPPORTS AMOVIBLES NORMALISES -- SPECIFICATIONS
+================================================================================
+
+  III.1. -- Description generale
+
+  Les supports amovibles utilises par le VEEC-9000X (ci-apres designes
+  "disquettes de securite" ou "supports VS-VEEC") sont des unites de stockage
+  physique de type carte rigide, fabriquees selon les specifications internes
+  V.E.E.C. (Norme interne NI-SUP-003).
+
+  Chaque support est individuellement identifie et assigne a une ULD specifique.
+  L'assignation d'un support a une ULD est determinee lors de la phase de
+  configuration du systeme et ne peut etre modifiee qu'avec l'autorisation
+  du Responsable Systeme Principal (RSP).
+
+  III.2. -- Identification des supports
+
+  Chaque disquette de securite est marquee selon le code suivant :
+
+         VS-VEEC / [LETTRE D'EMPLACEMENT] / [NUMERO DE SERIE]
+
+  Exemples :
+         VS-VEEC / A / 00147    -->  Support assigne a l'emplacement ULD-1
+         VS-VEEC / B / 00148    -->  Support assigne a l'emplacement ULD-2
+         VS-VEEC / C / 00149    -->  Support assigne a l'emplacement ULD-3
+
+  /!\ ATTENTION : L'insertion d'un support dans un emplacement autre que
+  celui auquel il est assigne provoquera un etat SVP = 0 sur ce canal.
+  Veillez scrupuleusement a respecter la correspondance emplacement/support.
+
+  III.3. -- Precautions de manipulation
+
+  - Ne pas plier, tordre ou exposer les supports a des temperatures extremes.
+  - Ne pas approcher les supports de sources electromagnetiques puissantes.
+  - En cas de deterioration visible d'un support, contacter immediatement le
+    RSP et ne pas tenter d'utiliser le support endommage.
+  - Les supports ne sont pas interchangeables entre differentes unites VEEC-9000X.
+
+================================================================================
+  IV. PROCEDURE D'EXPLOITATION -- DESACTIVATION DU MINUTEUR
+================================================================================
+
+  IV.1. -- Conditions prealables
+
+  Avant toute tentative de desactivation du systeme, s'assurer que :
+    [ ] Les trois disquettes de securite assignees a ce VEEC-9000X sont
+        disponibles et en bon etat.
+    [ ] L'operateur dispose du niveau d'habilitation requis (niveau 4 min.).
+    [ ] L'alimentation du VEEC-9000X est stable et operationnelle.
+    [ ] Le panneau de statut frontal est accessible et lisible.
+
+  IV.2. -- Procedure de desactivation (operation standard)
+
+    1. Identifier les trois disquettes de securite correspondant a ce systeme.
+       Chaque disquette est etiquetee avec sa lettre d'emplacement (A, B ou C).
+
+    2. Inserer la disquette etiquetee [A] dans l'emplacement ULD-1.
+       (Emplacement situe en position HAUTE sur le panneau frontal.)
+
+    3. Inserer la disquette etiquetee [B] dans l'emplacement ULD-2.
+       (Emplacement situe en position CENTRALE sur le panneau frontal.)
+
+    4. Inserer la disquette etiquetee [C] dans l'emplacement ULD-3.
+       (Emplacement situe en position BASSE sur le panneau frontal.)
+
+    5. Le systeme procede automatiquement a la verification des trois canaux.
+       Cette operation dure entre 2 et 5 secondes.
+
+    6. En cas de succes : le voyant vert "SYST. DESACTIVE" s'allume sur le
+       panneau de statut et un signal sonore de confirmation est emis.
+
+    7. En cas d'echec : le voyant rouge "ERREUR CANAL" s'allume et indique
+       le ou les canaux non conformes. Verifier l'assignation des disquettes
+       et recommencer depuis l'etape 2.
+
+  IV.3. -- En cas de difficultes
+
+  Si la desactivation echoue apres deux tentatives consecutives :
+    - Verifier visuellement l'etat des disquettes.
+    - Verifier que chaque disquette est inseree jusqu'en butee dans son ULD.
+    - S'assurer de la correspondance des lettres d'emplacement.
+    - Contacter le RSP ou consulter le Document d'Aide Technique DAT-9000X.
+
+================================================================================
+  V. ENTRETIEN ET MAINTENANCE PERIODIQUE
+================================================================================
+
+  V.1. -- Maintenance preventive (effectuee par le RSP ou technicien agree)
+
+  - Nettoyage mensuel des fentes d'insertion des ULD a l'air comprime sec.
+  - Verification trimestrielle de l'etalonnage des sous-systemes de verification
+    via la procedure de calibration CAL-9000X (document separe requis).
+  - Controle semestriel de l'alimentation et du cablage interne.
+  - Remplacement annuel des composants a duree de vie limitee (voir annexe
+    technique AT-04, liste des pieces detachees homologuees VEEC).
+
+  V.2. -- Diagnostics courants
+
+  Symptome              | Cause probable              | Action corrective
+  ----------------------+-----------------------------+------------------------
+  SVP = 0 permanent     | Mauvaise disquette inseree  | Verifier lettre empl.
+  SVP = 0 permanent     | Disquette endommagee        | Remplacer le support
+  SVP = 0 permanent     | ULD encrassee               | Nettoyage air comprime
+  Pas de reponse syst.  | Alimentation defaillante    | Verifier cable+fusibles
+  Signal instable       | Interference electromag.    | Eloigner sources perturb.
+
+================================================================================
+  VI. INFORMATIONS COMPLEMENTAIRES ET DOCUMENTS ASSOCIES
+================================================================================
+
+  Pour toute information complementaire, se referer aux documents suivants,
+  disponibles aupres du Bureau de Documentation Securisee (BDS) de V.E.E.C. :
+
+    - DAT-9000X     : Document d'Aide Technique VEEC-9000X
+    - NI-SUP-003    : Norme interne -- Specification des supports VS-VEEC
+    - CAL-9000X     : Procedure de calibration des ULD
+    - DSA-04        : Proc. de deverrouillage -- Cle DUPOND I.    [NIVEAU 5]
+    - DSA-05        : Proc. de deverrouillage -- Cle DUPOND A.    [NIVEAU 5]
+    - DSA-06        : Proc. de deverrouillage -- Cle DUPOND U.    [NIVEAU 5]
+    - DCI-001       : Dossier Classificatoire Interne -- Donnees  [NIVEAU 5]
+    - AT-04         : Annexe technique -- Pieces detachees homologuees
+    - RDS-09        : Registre de Diffusion Securisee
+
+  Rappel : L'acces aux documents de niveau 5 est strictement reglemente.
+  Toute demande doit etre adressee par ecrit a la Direction Generale de V.E.E.C.
+  et sera soumise a validation par le Comite de Securite Interne (CSI).
+
+================================================================================
+  V.E.E.C. -- VERY ETHICAL ENTERPRISE COMPAGNY  |  (c) 1997-1998 TOUS DROITS
+  "L'ethique au service de la technologie"       |  Rev. C  --  Page 1 / 1
+================================================================================
