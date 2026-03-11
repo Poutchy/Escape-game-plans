@@ -221,26 +221,16 @@ rgb_lcd lcd;
 
 char cmd[32];
 
-void handleMsg(int id)
+void handleMsg(int line, const char *text)
 {
-  Serial.print("MESSAGE ");
-  Serial.println(id);
-  lcd.clear();
-  switch (id)
-  {
-  case 1:
-    lcd.print("Hello");
-    break;
-  case 2:
-    lcd.print("System OK");
-    break;
-  case 3:
-    lcd.print("Insert coin");
-    break;
-  case 0:
-    lcd.clear();
-    break;
-  }
+  Serial.print("MESSAGE line ");
+  Serial.print(line);
+  Serial.print(": ");
+  Serial.println(text);
+  lcd.setCursor(0, line - 1);
+  lcd.print("                "); // clear line
+  lcd.setCursor(0, line - 1);
+  lcd.print(text);
 }
 
 void handleColor(int id)
@@ -293,7 +283,7 @@ void handleBuzzer(int id)
 
 void handleLed(int id)
 {
-  Serial.print("LED_SEQ ");
+  Serial.print("SEQ_LED ");
   Serial.println(id);
   switch (id)
   {
@@ -318,17 +308,20 @@ void handleCommand(char *c)
   Serial.println(c);
 
   char *sep = strchr(c, ':');
+  char *arg = (sep != nullptr) ? sep + 1 : (char *)"";
   int val = (sep != nullptr) ? atoi(sep + 1) : 0;
   if (sep != nullptr)
     *sep = '\0'; // split in-place: c now holds only the name
 
-  if (strcmp(c, "msg") == 0)
-    handleMsg(val);
+  if (strcmp(c, "msg1") == 0)
+    handleMsg(1, arg);
+  else if (strcmp(c, "msg2") == 0)
+    handleMsg(2, arg);
   else if (strcmp(c, "col") == 0)
     handleColor(val);
   else if (strcmp(c, "buzz") == 0)
     handleBuzzer(val);
-  else if (strcmp(c, "led_seq") == 0)
+  else if (strcmp(c, "seq_led") == 0)
     handleLed(val);
   else if (strcmp(c, "open") == 0)
     key_open();
