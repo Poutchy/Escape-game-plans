@@ -9,7 +9,6 @@
 
 #define ROTARY_ANGLE_SENSOR A0
 #define BUZZER 4
-#define POWER_SWITCH 2
 
 #define MARGIN 3              // frequency precision required
 #define LOCK_TIME 2000        // must hold frequency for 2s
@@ -126,7 +125,6 @@ void setup(){
 
   pinMode(ROTARY_ANGLE_SENSOR, INPUT);
   pinMode(BUZZER, OUTPUT);
-  pinMode(POWER_SWITCH, INPUT_PULLUP);
 
   lcd.setCursor(0,0);
   lcd.print("Talkie Walkie");
@@ -140,22 +138,6 @@ void setup(){
 /* ---------- LOOP ---------- */
 
 void loop(){
-
-  /* ----- POWER SWITCH ----- */
-
-  if(digitalRead(POWER_SWITCH) == HIGH){
-
-    lcd.noDisplay();
-    lcd.setRGB(0,0,0);
-    noTone(BUZZER);
-
-    delay(200);
-    return;
-  }
-
-  lcd.display();
-  lcd.setRGB(0,255,0);
-
   /* ----- READ KNOB ----- */
 
   int sensor_value = readSmoothedSensor();
