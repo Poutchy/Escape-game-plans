@@ -11,8 +11,8 @@
 #define BUZZER 4
 
 #define MARGIN 3              // frequency precision required
-#define LOCK_TIME 2000        // must hold frequency for 2s
-#define MESSAGE_INTERVAL 6000 // repeat message every 6s
+#define LOCK_TIME 3000        // must hold frequency for 3s
+#define MESSAGE_INTERVAL 5000 // repeat message every 5s
 
 #define NB_FREQ 2
 
@@ -24,6 +24,17 @@
 
 rgb_lcd lcd;
 
+/* ---------- STATIONS ---------- */
+
+const int FREQS[NB_FREQ] = {
+    300,
+    450};
+
+const char *MESSAGES[NB_FREQ] = {
+    "... --- ...",   // SOS
+    "-.-. --- -.. ." // CODE
+};
+
 /* ---------- SMOOTHING --------- */
 
 #define SMOOTH_SAMPLES 10
@@ -32,34 +43,24 @@ int readings[SMOOTH_SAMPLES];
 int readIndex = 0;
 int total = 0;
 
-int readSmoothedSensor(){
+int readSmoothedSensor()
+{
 
-  total = total - readings[readIndex];
+    total = total - readings[readIndex];
 
-  readings[readIndex] = analogRead(ROTARY_ANGLE_SENSOR);
+    readings[readIndex] = analogRead(ROTARY_ANGLE_SENSOR);
 
-  total = total + readings[readIndex];
+    total = total + readings[readIndex];
 
-  readIndex++;
+    readIndex++;
 
-  if(readIndex >= SMOOTH_SAMPLES){
-    readIndex = 0;
-  }
+    if (readIndex >= SMOOTH_SAMPLES)
+    {
+        readIndex = 0;
+    }
 
-  return total / SMOOTH_SAMPLES;
+    return total / SMOOTH_SAMPLES;
 }
-
-/* ---------- STATIONS ---------- */
-
-const int FREQS[NB_FREQ] = {
-  300,
-  450
-};
-
-const char* MESSAGES[NB_FREQ] = {
-  "... --- ...",     // SOS
-  "-.-. --- -.. ."   // CODE
-};
 
 /* ---------- STATE ---------- */
 
@@ -71,125 +72,139 @@ unsigned long lastMessageTime = 0;
 
 /* ---------- MORSE ---------- */
 
-void beep(int duration){
-  tone(BUZZER, MORSE_FREQ);
-  delay(duration);
-  noTone(BUZZER);
+void beep(int duration)
+{
+    tone(BUZZER, MORSE_FREQ);
+    delay(duration);
+    noTone(BUZZER);
 }
 
-void playMorse(const char* msg){
+void playMorse(const char *msg)
+{
 
-  for(int i = 0; msg[i] != '\0'; i++){
+    for (int i = 0; msg[i] != '\0'; i++)
+    {
 
-    char c = msg[i];
+        char c = msg[i];
 
-    if(c == '.'){
-      beep(DOT_TIME);
-      delay(SYMBOL_SPACE);
+        if (c == '.')
+        {
+            beep(DOT_TIME);
+            delay(SYMBOL_SPACE);
+        }
+
+        else if (c == '-')
+        {
+            beep(DASH_TIME);
+            delay(SYMBOL_SPACE);
+        }
+
+        else if (c == ' ')
+        {
+            delay(LETTER_SPACE);
+        }
     }
-
-    else if(c == '-'){
-      beep(DASH_TIME);
-      delay(SYMBOL_SPACE);
-    }
-
-    else if(c == ' '){
-      delay(LETTER_SPACE);
-    }
-
-  }
 }
 
 /* ---------- STATION DETECTION ---------- */
 
-int detectStation(float freq){
+int detectStation(float freq)
+{
 
-  for(int i = 0; i < NB_FREQ; i++){
-    if(freq > FREQS[i] - MARGIN && freq < FREQS[i] + MARGIN){
-      return i;
+    for (int i = 0; i < NB_FREQ; i++)
+    {
+        if (freq > FREQS[i] - MARGIN && freq < FREQS[i] + MARGIN)
+        {
+            return i;
+        }
     }
-  }
 
-  return -1;
+    return -1;
 }
 
 /* ---------- SETUP ---------- */
 
-void setup(){
-  for(int i = 0; i < SMOOTH_SAMPLES; i++){
-    readings[i] = analogRead(ROTARY_ANGLE_SENSOR);
-    total += readings[i];
-  }
+void setup()
+{
+    for (int i = 0; i < SMOOTH_SAMPLES; i++)
+    {
+        readings[i] = analogRead(ROTARY_ANGLE_SENSOR);
+        total += readings[i];
+    }
 
-  lcd.begin(16,2);
+    lcd.begin(16, 2);
 
-  pinMode(ROTARY_ANGLE_SENSOR, INPUT);
-  pinMode(BUZZER, OUTPUT);
+    pinMode(ROTARY_ANGLE_SENSOR, INPUT);
+    pinMode(BUZZER, OUTPUT);
 
-  lcd.setCursor(0,0);
-  lcd.print("Talkie Walkie");
-  lcd.setCursor(0,1);
-  lcd.print("Ready");
+    lcd.setCursor(0, 0);
+    lcd.print("Talkie Walkie");
+    lcd.setCursor(0, 1);
+    lcd.print("Ready");
 
-  delay(2000);
-  lcd.clear();
+    delay(2000);
+    lcd.clear();
 }
 
 /* ---------- LOOP ---------- */
 
-void loop(){
-  /* ----- READ KNOB ----- */
+void loop()
+{
+    /* ----- READ KNOB ----- */
 
-  int sensor_value = readSmoothedSensor();
+    int sensor_value = readSmoothedSensor();
 
-  float voltage = (float)sensor_value * ADC_REF / 1023;
-  float degrees = (voltage * FULL_ANGLE) / GROVE_VCC;
+    float voltage = (float)sensor_value * ADC_REF / 1023;
+    float degrees = (voltage * FULL_ANGLE) / GROVE_VCC;
 
-  float freq = MIN_FREQ + (degrees / FULL_ANGLE) * (MAX_FREQ - MIN_FREQ);
+    float freq = MIN_FREQ + (degrees / FULL_ANGLE) * (MAX_FREQ - MIN_FREQ);
 
-  /* ----- DISPLAY ----- */
+    /* ----- DISPLAY ----- */
 
-  lcd.setCursor(0,0);
-  lcd.print("Frequence :");
+    lcd.setCursor(0, 0);
+    lcd.print("Frequence :");
 
-  lcd.setCursor(0,1);
-  lcd.print(freq,1);
-  lcd.print(" MHz   ");
+    lcd.setCursor(0, 1);
+    lcd.print(freq, 1);
+    lcd.print(" MHz   ");
 
-  /* ----- CHECK STATION ----- */
+    /* ----- CHECK STATION ----- */
 
-  int station = detectStation(freq);
+    int station = detectStation(freq);
 
-  if(station != currentStation){
-    currentStation = station;
-    tuneStart = millis();
-    locked = false;
-  }
-
-  if(station == -1){
-    delay(40);
-    return;
-  }
-
-  /* ----- LOCK IF HELD ----- */
-
-  if(!locked && millis() - tuneStart > LOCK_TIME){
-    locked = true;
-    lastMessageTime = 0;
-  }
-
-  /* ----- LOOP MESSAGE ----- */
-
-  if(locked){
-
-    if(millis() - lastMessageTime > MESSAGE_INTERVAL){
-
-      playMorse(MESSAGES[station]);
-      lastMessageTime = millis();
-
+    if (station != currentStation)
+    {
+        currentStation = station;
+        tuneStart = millis();
+        locked = false;
     }
 
-  }
+    if (station == -1)
+    {
+        delay(40);
+        return;
+    }
 
-  delay(40);
+    /* ----- LOCK IF HELD ----- */
+
+    if (!locked && millis() - tuneStart > LOCK_TIME)
+    {
+        locked = true;
+        lastMessageTime = 0;
+    }
+
+    /* ----- LOOP MESSAGE ----- */
+
+    if (locked)
+    {
+
+        if (millis() - lastMessageTime > MESSAGE_INTERVAL)
+        {
+
+            playMorse(MESSAGES[station]);
+            lastMessageTime = millis();
+        }
+    }
+
+    delay(40);
 }
