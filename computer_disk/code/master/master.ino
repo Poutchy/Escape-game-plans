@@ -196,6 +196,7 @@ void handleCard(){
     lcd.setRGB(0, 255, 0);
     lcdShow(1, "BRAVO !");
     lcdShow(2, "Acces autorise");
+    sendSeq(4);
     sendBuzz(7);
     sendCol(2);
     sendOpen();
@@ -235,7 +236,10 @@ void setup(){
 
   sendSeq(1);
   lcdShow(1, "Entrez la");
-  lcdShow(2, "sequence 1/2");
+  { 
+    char buf[17]; 
+    snprintf(buf, sizeof(buf), "sequence 1/%d", NB_SEQ); lcdShow(2, buf); 
+  }
   t0 = millis();
 }
 
@@ -256,7 +260,6 @@ void loop(){
         sendBuzz(4);
 
         if(seqIndex == NB_SEQ){
-          sendSeq(2);
           lcdShow(1, "Passez la carte");
           lcdShow(2, "");
           gameState = WAIT_CARD;
@@ -294,7 +297,10 @@ void loop(){
       lcd.setRGB(255, 255, 255);
       sendSeq(1);
       lcdShow(1, "Entrez la");
-      lcdShow(2, "sequence 1/2");
+      { 
+        char buf[17]; 
+        snprintf(buf, sizeof(buf), "sequence 1/%d", NB_SEQ); lcdShow(2, buf); 
+      }
       gameState = WAIT_SEQ;
       Serial.println("[GAME] reset -> WAIT_SEQ");
     }

@@ -21,7 +21,7 @@ byte uidWinSize = 4;
 
 rgb_lcd lcd;
 
-#define NB_SEQ 0    // nombre de séquences définies (mettre à jour à chaque nouvelle séquence)
+#define NB_SEQ 3
 #define DEBOUNCE 20 // mécanique anti-rebond (20ms)
 #define LONG_PRESS 1000
 
@@ -40,6 +40,10 @@ const uint8_t leds[] = {BUTTONS};
 #undef X
 const char *names[] = {"b1", "b2", "r1", "r2"};
 #define NUM_BTN 4
+
+// État du jeu
+enum GameState { WAIT_SEQ, SEQ_ERROR, WAIT_CARD, WIN };
+GameState gameState = WAIT_SEQ;
 
 // Sequences
 enum SequenceType
@@ -92,21 +96,24 @@ unsigned long errorTimer = 0;
 #define R(p) {RELEASE_INPUT, p}
 
 /* ------------------------------------------------------------------
- * SÉQUENCES DU JEU
+ * SEQUENCES DU JEU
  *  - S : appui court
  *  - P : maintien long (>= LONG_PRESS)
  *  - R : relâchement d'un maintien
  *
- *  Seq 1 : B1 → R1 → B2 → R2  (4 appuis courts)
- *  Seq 2 : maintien B1, R2, R1, relâche B1
+ *  Seq 1 : R2 → R1 → R2 → B2
+ *  Seq 2 : B2 → B1 → B1 → R1
+ *  Seq 3 : R1 → R2 → R1 → R2 → R2
  * ------------------------------------------------------------------ */
-SequenceEvent seq1[] = { S(BB1), S(BR1), S(BB2), S(BR2) };
-SequenceEvent seq2[] = { P(BB1), S(BR2), S(BR1), R(BB1) };
+SequenceEvent seq1[] = { S(BR2), S(BR1), S(BR2), S(BB2) };
+SequenceEvent seq2[] = { S(BB2), S(BB1), S(BB1), S(BR1) };
+SequenceEvent seq3[] = { S(BR1), S(BR2), S(BR1), S(BR2), S(BR2) };
 
-const SequenceEvent *sequences[] = { seq1, seq2 };
+const SequenceEvent *sequences[] = { seq1, seq2, seq3 };
 const uint8_t seqLen[] = {
   sizeof(seq1)/sizeof(seq1[0]),
-  sizeof(seq2)/sizeof(seq2[0])
+  sizeof(seq2)/sizeof(seq2[0]),
+  sizeof(seq3)/sizeof(seq3[0])
 };
 
 // Slave serial
