@@ -356,7 +356,7 @@ void handleSerial()
 void setup()
 {
   Serial.begin(9600);    // debug
-  Serial1.begin(115200); // UART
+  Serial1.begin(4800); // UART
 
   lcd.begin(16, 2);
 

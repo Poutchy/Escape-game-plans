@@ -3,6 +3,21 @@
 
 #include <Wire.h>
 #include <rgb_lcd.h>
+#include <SoftwareSerial.h>
+#include <SPI.h>
+#include <MFRC522.h>
+#include "lorae5.h"
+#include "config_application.h"
+#include "config_board.h"
+
+// RFID
+#define SS_PIN  10
+#define RST_PIN A2
+MFRC522 rfid(SS_PIN, RST_PIN);
+
+// UID de la carte gagnante
+byte uidWin[]   = {0x1F, 0x2D, 0xDF, 0x02};
+byte uidWinSize = 4;
 
 rgb_lcd lcd;
 
@@ -39,19 +54,15 @@ struct SequenceEvent
     uint8_t pin;
 };
 
-// Fonctions
-// Boutons
 void readButtons();
 bool anyHoldActive();
 void addEvent(SequenceType t, uint8_t pin);
-// Séquences
 void shortPress(uint8_t i);
 void longPress(uint8_t i);
 void releaseHold(uint8_t i);
 char (*seqPrint(SequenceEvent* seq))[17];
-// LCD
 void lcdShow(uint8_t line, const char *text);
-// Transmission
+void loraSend(uint8_t* payload, uint8_t size);
 void sendSeq(uint8_t id);
 void sendBuzz(uint8_t id);
 void sendMsg1(const char *msg);
@@ -59,8 +70,9 @@ void sendMsg2(const char *msg);
 void sendCol(uint8_t col);
 void sendOpen();
 void sendClose();
+void handleCard();
 
-// États
+// États boutons
 bool raw[NUM_BTN] = {HIGH, HIGH, HIGH, HIGH};
 bool db[NUM_BTN] = {HIGH, HIGH, HIGH, HIGH};
 unsigned long tdb[NUM_BTN] = {0};
@@ -71,16 +83,38 @@ int8_t hold = -1;
 SequenceEvent inputSeq[20];
 uint8_t inputLen = 0;
 uint8_t seqIndex = 0;
-uint8_t seqLed = 1;
 unsigned long t0 = 0;
-
-// Variables globales
-const SequenceEvent *sequences[] = {};
-const uint8_t seqLen[] = {};
+unsigned long errorTimer = 0;
 
 // Macros séquences
 #define S(p) {SHORT_INPUT, p}
 #define P(p) {PRESS_INPUT, p}
 #define R(p) {RELEASE_INPUT, p}
+
+/* ------------------------------------------------------------------
+ * SÉQUENCES DU JEU
+ *  - S : appui court
+ *  - P : maintien long (>= LONG_PRESS)
+ *  - R : relâchement d'un maintien
+ *
+ *  Seq 1 : B1 → R1 → B2 → R2  (4 appuis courts)
+ *  Seq 2 : maintien B1, R2, R1, relâche B1
+ * ------------------------------------------------------------------ */
+SequenceEvent seq1[] = { S(BB1), S(BR1), S(BB2), S(BR2) };
+SequenceEvent seq2[] = { P(BB1), S(BR2), S(BR1), R(BB1) };
+
+const SequenceEvent *sequences[] = { seq1, seq2 };
+const uint8_t seqLen[] = {
+  sizeof(seq1)/sizeof(seq1[0]),
+  sizeof(seq2)/sizeof(seq2[0])
+};
+
+// Slave serial
+SoftwareSerial slaveSerial(A0, A1);
+
+// LoRaWAN
+LORAE5 lorae5(devEUI, appEUI, appKey, devAddr, nwkSKey, appSKey);
+uint8_t payloadUpNOK[1]   = {0x01};
+uint8_t payloadUpALIVE[1] = {0x02};
 
 #endif // MASTER_H
