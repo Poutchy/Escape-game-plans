@@ -183,17 +183,32 @@ void handleColor(int id)
   Serial.println(id);
   switch (id)
   {
-  case 0:
+  case 0: // off
     lcd.setRGB(0, 0, 0);
     break;
-  case 1:
+  case 1: // red
     lcd.setRGB(255, 0, 0);
     break;
-  case 2:
+  case 2: // green
     lcd.setRGB(0, 255, 0);
     break;
-  case 3:
+  case 3: // blue
     lcd.setRGB(0, 0, 255);
+    break;
+  case 4: // yellow
+    lcd.setRGB(255, 255, 0);
+    break;
+  case 5: // magenta
+    lcd.setRGB(255, 0, 255);
+    break;
+  case 6: // cyan
+    lcd.setRGB(0, 255, 255);
+    break;
+  case 7: // white
+    lcd.setRGB(255, 255, 255);
+    break;
+  default:
+    lcd.setRGB(0, 0, 0);
     break;
   }
 }
@@ -235,13 +250,16 @@ void handleLed(int id)
   switch (id)
   {
   case 1:
-    setLedPattern(LedState::ON, LedState::ON, LedState::ON, LedState::ON);
+    setLedPattern(LedState::BLINK, LedState::OFF, LedState::ON, LedState::BLINK);
     break;
   case 2:
-    setLedPattern(LedState::BLINK, LedState::BLINK, LedState::BLINK, LedState::BLINK);
+    setLedPattern(LedState::ON, LedState::BLINK, LedState::OFF, LedState::OFF);
     break;
   case 3:
-    setLedPattern(LedState::BLINK, LedState::OFF, LedState::BLINK, LedState::ON);
+    setLedPattern(LedState::OFF, LedState::OFF, LedState::ON, LedState::ON);
+    break;
+  case 4:
+    setLedPattern(LedState::BLINK, LedState::BLINK, LedState::BLINK, LedState::BLINK);
     break;
   default:
     setLedPattern(LedState::OFF, LedState::OFF, LedState::OFF, LedState::OFF);
