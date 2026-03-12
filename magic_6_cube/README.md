@@ -1,56 +1,39 @@
-# Gameboy
+Magic 6 Cube
+=============
 
-## Résumé du fonctionnement
+Description
+-----------
 
-Ce projet est une énigme interactive inspirée d'une Gameboy, utilisée dans un escape game. Le joueur doit entrer un code de 4 lettres à l'aide de boutons et de l'orientation de l'appareil. Selon le code saisi, un message s'affiche pour aider à résoudre l'énigme des disquettes.
+"magic 6 cube" est un prototype de cube interactif conçu pour des escape-games. Il utilise un Arduino pour piloter un écran RGB, lire un capteur accéléromètre/gyroscope et gérer deux boutons (bleu et rouge). Le cube détecte les mouvements et fournit un retour visuel.
 
-L'appareil détecte son orientation grâce à l'accéléromètre/gyroscope et affiche une couleur correspondante sur l'écran LCD. Chaque orientation permet de sélectionner une lettre. Le joueur valide chaque lettre avec le bouton bleu et peut réinitialiser la saisie avec le bouton rouge.
+Connexions (général)
+--------------------
 
-## Schéma de branchement
+- Écran RGB : bus I2C (SDA / SCL)
+- Capteur accel/gyro : bus I2C (SDA / SCL)
+- Bouton bleu : broches D4 / D5 (ou selon le sketch)
+- Bouton rouge: broches D2 / D3
 
-- Grove LCD RGB Backlight : port I2C
-- Grove 6-Axis Accelerometer & Gyroscope : port I2C
-- Red LED Button : port D2
-- Blue LED Button : port D4
+Consultez le dossier `schemes/` pour le schéma de câblage détaillé.
 
-## Utilisation
-### Exemple de séquence de jeu
+Structure du projet
+-------------------
 
-1. L'appareil démarre, l'écran affiche une couleur selon l'orientation.
-2. L'utilisateur incline l'appareil pour choisir la couleur/lettre désirée.
-3. Il appuie sur le bouton bleu pour valider la lettre (répéter 4 fois).
-4. Le message correspondant au code s'affiche.
-5. Pour recommencer, appuyer sur le bouton rouge.
+- `code/` : sketch Arduino principal (`sketch_mar2a.ino`)
+- `models/` : modèles 3D
+- `PDFs/` : documents uticomplémentaires
+- `schemes/` : schémas électriques et diagrammes
 
-#### Détail technique
+Installation et utilisation
+--------------------------
 
-L'accéléromètre/gyroscope détecte l'orientation de l'appareil. Chaque orientation correspond à une couleur affichée sur l'écran LCD et à une lettre pour le code. Le code est validé lorsque 4 lettres sont saisies.
+1. Ouvrir `code/sketch_mar2a.ino` dans l'IDE Arduino.
+2. Installer les bibliothèques nécessaires (I2C, écran, MPU6050) si besoin.
+3. Vérifier et ajuster les définitions de broches dans le sketch si nécessaire.
+4. Téléverser le sketch sur l'Arduino et tester les entrées (boutons) et l'affichage.
 
-### Couleur - Orientation
-|Orientation|Couleur|Numéro|
-|:------------:|:-----:|:-----:|
-|Plat       |Vert       |1|
-|Retourne   |Rouge      |2|
-|Gauche     |Bleu       |3|
-|Droite     |Jaune      |4|
-|Avant      |Orange     |5|
-|Arriere    |Magenta    |6|
+Remarques
+--------
 
-
-### Glossaire
-|Orientation                            |Code secret  |Texte||
-|:-------------------------------------:|:-----------:|:-----:|:-:|
-|Plat, Gauche, Avant, Retourne          |V - B - O - R|La troisième cle commence par V|✅3|
-|Avant, Arriere, Plat, Gauche           |O - M - V - B|Les cles encore utilisables contiennent la lettre B|✅2|
-|Droite, Arriere, Retourne, Gauche      |J - M - R - B|La cle 1 commence par une lettre plus proche de A que celle de la 2e|✅1|
-|Retourne, Droite, Gauche, Plat         |R - B - J - V|Une cle valide ne commence jamais par R|❌|
-|Avant, Droite, Plat, Arriere           |O - J - V - M|Une seule cle commence par une voyelle|❌|
-|Gauche, Retourne, Droite, Avant        |B - R - B - O|Les cles valides ne commencent pas par B|❌|
-|Plat, Plat, Plat, Plat                 |V - V - V - V|Message 1  |X|
-|Retourne, Retourne, Retourne, Retourne |R - R - R - R|Message 1  |X|
-
-## Dépendances logicielles
-
-- Bibliothèque Grove LCD RGB Backlight
-- Bibliothèque Grove 6-Axis Accelerometer & Gyroscope   
-- Bibliothèque pour gestion des boutons
+- Les adresses I2C et les broches peuvent varier selon le matériel utilisé.
+- Le schéma fourni dans `schemes/` est un diagramme simplifié pour guider le câblage.
