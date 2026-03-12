@@ -249,21 +249,21 @@ void handleLed(int id)
   Serial.println(id);
   switch (id)
   {
-  case 1:
-    setLedPattern(LedState::BLINK, LedState::OFF, LedState::ON, LedState::BLINK);
-    break;
-  case 2:
-    setLedPattern(LedState::ON, LedState::BLINK, LedState::OFF, LedState::OFF);
-    break;
-  case 3:
-    setLedPattern(LedState::OFF, LedState::OFF, LedState::ON, LedState::ON);
-    break;
-  case 4:
-    setLedPattern(LedState::BLINK, LedState::BLINK, LedState::BLINK, LedState::BLINK);
-    break;
-  default:
-    setLedPattern(LedState::OFF, LedState::OFF, LedState::OFF, LedState::OFF);
-    break;
+    case 1:
+      setLedPattern(LedState::BLINK, LedState::OFF, LedState::ON, LedState::BLINK);
+      break;
+    case 2:
+      setLedPattern(LedState::ON, LedState::BLINK, LedState::OFF, LedState::OFF);
+      break;
+    case 3:
+      setLedPattern(LedState::OFF, LedState::OFF, LedState::ON, LedState::ON);
+      break;
+    case 4:
+      setLedPattern(LedState::BLINK, LedState::BLINK, LedState::BLINK, LedState::BLINK);
+      break;
+    default:
+      setLedPattern(LedState::OFF, LedState::OFF, LedState::OFF, LedState::OFF);
+      break;
   }
 }
 
@@ -318,7 +318,7 @@ void handleSerial()
 void setup()
 {
   Serial.begin(9600);    // debug
-  Serial1.begin(115200); // UART
+  Serial1.begin(4800); // UART
 
   lcd.begin(16, 2);
 
