@@ -18,15 +18,12 @@ Selon la combinaison saisie, un **message s’affiche** et fournit un indice pou
 
 Les composants sont reliés de la manière suivante :
 
-- **Grove LCD RGB Backlight** : bus I2C (SDA / SCL)
-- **Grove 6-Axis Accelerometer & Gyroscope** : bus I2C (SDA / SCL)
+- **Grove LCD RGB Backlight** : bus I2C
+- **Grove 6-Axis Accelerometer & Gyroscope** : bus I2C
 - **Red LED Button** : broche D2
 - **Blue LED Button** : broche D4
 
 Consultez le dossier **`schemes/`** pour le schéma de câblage détaillé.
-
----
-
 
 ---
 

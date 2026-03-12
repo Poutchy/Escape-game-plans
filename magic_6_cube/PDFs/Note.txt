@@ -1,71 +1,102 @@
-Manuel utilisateur – Console d’orientation (type Gameboy) 🎮
+Manuel utilisateur – Magic 6 Cube 🎲
 
-Bienvenue dans le guide utilisateur de la console d’orientation interactive. Cet appareil expérimental ressemble à une ancienne console portable et permet de communiquer avec certains systèmes de stockage de données anciens… ou presque.
-Dans le cadre de votre mission, il pourra vous aider à interpréter des signaux colorés et des messages mystérieux.
+Bienvenue dans le guide utilisateur du Magic 6 Cube.
 
-⚠️ Attention : certaines informations contenues dans ce manuel proviennent de notes d’anciens techniciens et pourraient être partiellement incorrectes ou obsolètes.
+Cet appareil expérimental s’inspire du célèbre jouet Magic 8 Ball, utilisé autrefois pour répondre à des questions par des messages mystérieux.
+Cependant, cette version modifiée possède des capacités bien plus… inhabituelles.
+
+Le Magic 6 Cube semble capable d’interpréter l’orientation dans laquelle il est tenu et de produire des signaux colorés qui correspondent à différents symboles.
+
+Dans certaines archives techniques retrouvées dans les laboratoires où cet objet a été développé, il est mentionné que ces signaux servaient à organiser des systèmes d’archivage de données physiques.
+
+⚠️ Attention : certaines informations de ce manuel proviennent de notes incomplètes et peuvent être partiellement incorrectes ou obsolètes.
 
 1. Présentation générale
 
-La console d’orientation est un dispositif portable inspiré des consoles rétro. Elle combine plusieurs capteurs et un écran lumineux pour interpréter les mouvements de l’utilisateur.
+Le Magic 6 Cube est un dispositif interactif portable conçu pour être manipulé dans l’espace.
 
-L’appareil fonctionne principalement grâce :
+Il contient plusieurs composants :
 
-à un écran LCD rétro-éclairé
+un écran LCD rétroéclairé capable d’afficher différentes couleurs
 
-à un capteur d’orientation interne
+un capteur d’orientation interne
 
-à deux boutons lumineux
+deux boutons lumineux
 
-Lorsque l’utilisateur incline la console dans différentes directions, l’écran affiche une couleur spécifique.
-Ces couleurs permettent de composer une séquence de quatre symboles.
+Le cube détecte sa position dans l’espace grâce à un système combinant :
 
-Une fois la séquence complète validée, l’appareil révèle un message enregistré dans sa mémoire interne.
+un accéléromètre
 
-Certains chercheurs pensent que ces messages servaient autrefois à classer ou organiser des supports de données.
+un gyroscope
 
-2. Description des commandes
+Lorsque l’utilisateur incline le cube, l’écran affiche une couleur spécifique.
+
+Ces couleurs peuvent être utilisées pour composer une séquence de quatre symboles.
+
+Une fois la séquence complète validée, le cube affiche un message enregistré dans sa mémoire interne.
+
+Certains chercheurs pensent que ces messages servaient à ordonner ou classer des supports physiques de données, comme des disquettes ou des cartouches expérimentales.
+
+D’autres pensent qu’il s’agissait simplement d’un prototype de jouet interactif.
+
+La vérité reste inconnue.
+
+2. Description des boutons
+
+Le Magic 6 Cube possède deux boutons principaux.
+
 Bouton bleu 🔵
 
-Permet de valider la couleur actuellement affichée.
+Fonction principale :
 
-Chaque pression enregistre un symbole dans la séquence.
+Valider la couleur actuellement affichée
+
+Chaque pression du bouton bleu :
+
+enregistre la couleur actuelle
+
+ajoute un symbole à la séquence
+
+Une séquence complète contient 4 validations.
 
 Bouton rouge 🔴
 
-Permet de réinitialiser complètement la séquence en cours.
+Fonction principale :
 
-Utile en cas d’erreur ou pour recommencer une recherche.
+Réinitialiser la séquence
 
-3. Fonctionnement général
+Si une erreur est faite ou si l’utilisateur souhaite recommencer :
 
-Allumez l’appareil.
+appuyer sur le bouton rouge
 
-Inclinez la console pour faire apparaître une couleur sur l’écran.
+la séquence enregistrée est effacée
 
-Lorsque la couleur souhaitée apparaît, appuyez sur le bouton bleu.
+un nouveau code peut être entré
 
-Répétez l’opération jusqu’à obtenir 4 couleurs validées.
+3. Utilisation du Magic 6 Cube
+Procédure standard
 
-L’appareil affiche alors un message enregistré.
+Allumer l’appareil.
 
-Appuyez sur le bouton rouge pour recommencer.
+Incliner le cube dans une direction.
 
-Certaines notes indiquent que les couleurs pourraient correspondre à :
+Observer la couleur affichée sur l’écran.
 
-des lettres
+Lorsque la couleur souhaitée apparaît, appuyer sur le bouton bleu.
 
-des positions
+Répéter l’opération jusqu’à enregistrer 4 couleurs.
 
-ou même des types de supports informatiques anciens
+Un message s’affiche alors sur l’écran.
 
-La fonction exacte n’a jamais été clairement documentée.
+Appuyer sur le bouton rouge pour recommencer.
 
-4. Tableau officiel des orientations et couleurs
+Certaines notes indiquent que l’ordre des couleurs est extrêmement important.
 
-Ce tableau est la référence principale pour comprendre le fonctionnement de la console.
+4. Tableau officiel des orientations
 
-Orientation de l’appareil	Couleur affichée	Numéro
+Le tableau suivant est la référence principale pour comprendre les signaux du cube.
+
+Orientation du cube	Couleur affichée	Numéro
 Plat	Vert	1
 Retourné	Rouge	2
 Incliné à gauche	Bleu	3
@@ -73,54 +104,20 @@ Incliné à droite	Jaune	4
 Incliné vers l’avant	Orange	5
 Incliné vers l’arrière	Magenta	6
 
-💡 Astuce : certains utilisateurs affirment que faire pivoter la console rapidement peut stabiliser la détection de certaines orientations difficiles.
+💡 Astuce : certains utilisateurs affirment que faire pivoter légèrement le cube avant de valider améliore la détection des orientations.
 
 5. Interprétation possible des couleurs
 
-Plusieurs hypothèses existent concernant la signification des couleurs :
+La signification exacte des couleurs n’a jamais été totalement documentée.
 
-Correspondance avec des lettres d’un alphabet codé
+Plusieurs théories existent :
 
-Référence à des cartouches de sauvegarde expérimentales
+chaque couleur correspondrait à une lettre d’un alphabet codé
 
-Ancien système de tri de disquettes de laboratoire
+le système pourrait être un ancien outil de tri de supports de stockage
 
-Les archives techniques mentionnent que certaines combinaisons de couleurs débloquent des messages spécifiques.
+il pourrait s’agir d’un prototype de générateur de réponses aléatoires, comme le Magic 8 Ball
 
-⚠️ Il est également possible que certaines séquences ne produisent aucun résultat.
+Les archives techniques indiquent que certaines combinaisons précises déclenchent des messages spécifiques.
 
-6. Messages connus (archives techniques)
-
-Certains codes testés par les anciens opérateurs ont permis d’obtenir les messages suivants :
-
-Orientation	Code	Message
-Plat → Gauche → Avant → Retourné	V - B - O - R	Cette disquette est placée avant OMVB
-Retourné → Droite → Gauche → Plat	R - B - J - V	BRJO est la première disquette
-Avant → Arrière → Plat → Gauche	O - M - V - B	Je suis placée juste après VBOR
-Droite → Arrière → Retourné → Gauche	J - M - R - B	VBOR est la dernière disquette
-Avant → Droite → Plat → Arrière	O - J - V - M	Je suis entre VBOR et BRJO
-Gauche → Retourné → Droite → Avant	B - R - B - O	Je suis placée après OMVB
-
-Certaines séquences semblent volontairement incomplètes ou contradictoires, ce qui laisse penser que ce système servait peut-être à créer une énigme logique.
-
-7. Conseils d’utilisation
-
-✔ Maintenez la console stable lors de la validation d’une couleur.
-✔ Si une mauvaise couleur est enregistrée, utilisez le bouton rouge pour recommencer.
-✔ Les séquences peuvent parfois dépendre de l’ordre exact des orientations.
-
-❗ Attention : certaines notes techniques mentionnent que retourner l’appareil trop rapidement peut inverser certaines couleurs.
-
-8. Notes techniques (archives internes)
-
-Composants principaux :
-
-Écran LCD RGB Backlight
-
-Capteur 6-Axis Accelerometer & Gyroscope
-
-Bouton LED rouge
-
-Bouton LED bleu
-
-Les capteurs analysent l’orientation de l’appareil et déclenchent automatiquement la couleur correspondante sur l’écran.
+⚠️ Certaines séquences ne produisent aucun message connu.
