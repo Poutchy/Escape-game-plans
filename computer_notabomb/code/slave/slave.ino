@@ -13,19 +13,14 @@
 #define LB 8
 #define NB_LED 4
 
-#define LATCH A0
-#define PUSHER A1
+#define LOCK A0
 
 // =============================================================================
 // CONSTANTS
 // =============================================================================
 
-#define LATCH_CLOSED 100
-#define LATCH_OPEN 10
-#define PUSHER_CLOSED 100
-#define PUSHER_OPEN 10
-#define OPEN_DELAY 500
-#define CLOSE_DELAY 500
+#define LOCK_CLOSED 100
+#define LOCK_OPEN 10
 
 const int BLINK_INTERVAL = 500; // ms
 
@@ -145,68 +140,17 @@ void updateBuzzer()
 // SERVO / KEY MODULE
 // =============================================================================
 
-Servo latch;
-Servo pusher;
-
-enum KeyState
-{
-  KEY_IDLE,
-  KEY_OPENING,
-  KEY_PUSHING,
-  KEY_CLOSING,
-  KEY_LOCKING
-};
-
-KeyState keyState = KEY_IDLE;
-unsigned long keyTimer = 0;
+Servo lock;
 
 void key_open()
 {
   Serial.println("OPENING...");
-  latch.write(LATCH_OPEN);
-  keyTimer = millis();
-  keyState = KEY_OPENING;
+  lock.write(LOCK_OPEN);
 }
-
 void key_close()
 {
   Serial.println("CLOSING...");
-  pusher.write(PUSHER_CLOSED);
-  keyTimer = millis();
-  keyState = KEY_CLOSING;
-}
-
-void updateKeySystem()
-{
-  switch (keyState)
-  {
-  case KEY_OPENING:
-    if (millis() - keyTimer > OPEN_DELAY)
-    {
-      pusher.write(PUSHER_OPEN);
-      keyState = KEY_PUSHING;
-      keyTimer = millis();
-    }
-    break;
-  case KEY_PUSHING:
-    if (millis() - keyTimer > 300)
-      keyState = KEY_IDLE;
-    break;
-  case KEY_CLOSING:
-    if (millis() - keyTimer > CLOSE_DELAY)
-    {
-      latch.write(LATCH_CLOSED);
-      keyState = KEY_LOCKING;
-      keyTimer = millis();
-    }
-    break;
-  case KEY_LOCKING:
-    if (millis() - keyTimer > 300)
-      keyState = KEY_IDLE;
-    break;
-  default:
-    break;
-  }
+  lock.write(LOCK_CLOSED);
 }
 
 // =============================================================================
@@ -360,8 +304,7 @@ void setup()
 
   lcd.begin(16, 2);
 
-  latch.attach(LATCH);
-  pusher.attach(PUSHER);
+  lock.attach(LOCK);
 
   pinMode(BUZZER, OUTPUT);
   pinMode(LR, OUTPUT);
@@ -369,8 +312,7 @@ void setup()
   pinMode(LG, OUTPUT);
   pinMode(LB, OUTPUT);
 
-  pusher.write(PUSHER_CLOSED);
-  latch.write(LATCH_CLOSED);
+  lock.write(LOCK_CLOSED);
 
   Serial.println("[SLAVE] ready");
 }
@@ -384,5 +326,4 @@ void loop()
   handleSerial();
   updateLeds();
   updateBuzzer();
-  updateKeySystem();
 }
