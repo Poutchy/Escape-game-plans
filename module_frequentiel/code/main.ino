@@ -7,7 +7,7 @@ const int potPin = A0;
 const int buzzer = A3;
 const char code[] = "2418";
 
-int targets[3] = {35, 64, 92};
+int targets[3] = {35, 64, 27};
 int tolerance = 0;
 
 int level = 0;
