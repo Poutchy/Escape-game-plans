@@ -69,13 +69,22 @@ void releaseHold(uint8_t i){ Serial.print("[BTN] release: "); Serial.println(nam
  *    S(BB2)
  *  };
  * ------------------------------------------------------------------ */
-bool checkSequence(uint8_t idx){
-  if(inputCount != seqLen[idx]) return false;
+bool matchSeq(const SequenceEvent* expected, uint8_t len){
+  if(inputCount != len) return false;
   for(uint8_t i=0;i<inputCount;i++){
-    if(inputSeq[i].type!=sequences[idx][i].type) return false;
-    if(inputSeq[i].pin!=sequences[idx][i].pin) return false;
+    if(inputSeq[i].type != expected[i].type) return false;
+    if(inputSeq[i].pin  != expected[i].pin)  return false;
   }
   return true;
+}
+
+bool checkSequence(uint8_t idx){
+  return matchSeq(sequences[idx], seqLen[idx]);
+}
+
+bool seqReady(){
+  return inputCount > 0 && !anyHoldActive()
+      && (millis() - inputWindowStart) > SEQ_TIMEOUT_MS;
 }
 
 char (*seqPrint(SequenceEvent* seq))[17]{
@@ -187,12 +196,189 @@ void handleCard(){
   }
 }
 
+/* ---------------- STATE MACHINE ---------------- */
+void enterState(GameState s){
+  gameState = s;
+  inputCount = 0;
+  inputWindowStart = millis();
+
+  switch(s){
+  case ERREUR_CRITIQUE:
+    errorX = random(100, 999);
+    errorY = random(100, 999);
+    errorZ = random(100, 999);
+    lcd.setRGB(255, 0, 0);
+    lcdShow(1, "Erreur critique!");
+    lcdShow(2, "");
+    sendCmd("msg1", "Entrer un code");
+    sendCmd("msg2", "");
+    break;
+
+  case MODE_MANUAL:
+    lcd.setRGB(255, 255, 255);
+    lcdShow(1, "Mode Manual");
+    lcdShow(2, "");
+    break;
+
+  case JOURNAUX_1: {
+    lcd.setRGB(255, 255, 255);
+    lcdShow(1, "Journaux");
+    lcdShow(2, "erreur trouve");
+    char b1[17], b2[17];
+    snprintf(b1, sizeof(b1), "error %d", errorX);
+    snprintf(b2, sizeof(b2), "error %d", errorY);
+    sendCmd("msg1", b1);
+    sendCmd("msg2", b2);
+    break;
+  }
+
+  case JOURNAUX_1b: {
+    lcd.setRGB(255, 255, 255);
+    lcdShow(1, "Journaux");
+    lcdShow(2, "erreur trouve");
+    char b[17];
+    snprintf(b, sizeof(b), "error %d", errorX);
+    sendCmd("msg1", b);
+    sendCmd("msg2", "");
+    break;
+  }
+
+  case DEBUG_SEQ:
+    currentSeq = 0;
+    lcd.setRGB(255, 255, 255);
+    lcdShow(1, "Debug sequence");
+    lcdShow(2, "1/5");
+    sendCmd("leds", 1);
+    break;
+
+  case JOURNAUX_2: {
+    lcd.setRGB(255, 255, 255);
+    lcdShow(1, "Journaux");
+    lcdShow(2, "");
+    char b[17];
+    snprintf(b, sizeof(b), "error %d", errorZ);
+    sendCmd("msg1", b);
+    sendCmd("msg2", "");
+    break;
+  }
+
+  case LISTE_MOTS:
+    currentList = 0;
+    currentWord = 0;
+    lcd.setRGB(255, 255, 255);
+    lcdShow(1, "Liste de mots");
+    lcdShow(2, "");
+    sendCmd("list", 1);
+    break;
+
+  case CODE_RESOLU:
+    lcd.setRGB(255, 255, 255);
+    lcdShow(1, "Code resolu !");
+    lcdShow(2, "");
+    sendCmd("list", 0);
+    break;
+
+  case JOURNAUX_3:
+    lcd.setRGB(255, 255, 255);
+    lcdShow(1, "Journaux");
+    lcdShow(2, "");
+    break;
+
+  case REDEMARRAGE:
+    lcd.setRGB(255, 255, 255);
+    lcdShow(1, "Redemarrage");
+    lcdShow(2, "");
+    break;
+
+  case LOGIN:
+    lcd.setRGB(255, 255, 255);
+    lcdShow(1, "Login");
+    lcdShow(2, "");
+    break;
+
+  case WAIT_CARD:
+    lcd.setRGB(255, 255, 255);
+    lcdShow(1, "Connecte !");
+    lcdShow(2, "");
+    sendCmd("msg1", "Attention chaque");
+    sendCmd("msg2", "mauvaise carte!");
+    break;
+
+  default:
+    break;
+  }
+  static const char* stateNames[] = {
+    "ERREUR_CRITIQUE","MODE_MANUAL","JOURNAUX_1","JOURNAUX_1b",
+    "DEBUG_SEQ","JOURNAUX_2","LISTE_MOTS","CODE_RESOLU",
+    "JOURNAUX_3","REDEMARRAGE","LOGIN","WAIT_CARD","SEQ_ERROR","WIN"
+  };
+  Serial.print("[STATE] -> "); Serial.println(stateNames[s]);
+}
+
+void enterError(GameState returnTo){
+  prevState = returnTo;
+  if(returnTo == LISTE_MOTS) sendCmd("list", 0);  // stop list so msg1/msg2 get through
+  lcd.setRGB(255, 0, 0);
+  lcdShow(1, "Code invalide!");
+  lcdShow(2, "Recommencez...");
+  sendCmd("buzz", 3);
+  char (*lines)[17] = seqPrint(inputSeq);
+  sendCmd("msg1", lines[0]);
+  sendCmd("msg2", lines[1]);
+  errorDisplayStart = millis();
+  inputCount = 0;
+  inputWindowStart = millis();
+  gameState = SEQ_ERROR;
+  Serial.println("[GAME] -> SEQ_ERROR");
+}
+
+void exitError(){
+  lcd.setRGB(255, 255, 255);
+  // Restore display without resetting progress counters
+  switch(prevState){
+  case DEBUG_SEQ: {
+    char buf[17];
+    snprintf(buf, sizeof(buf), "%d/5", currentSeq + 1);
+    lcdShow(1, "Debug sequence");
+    lcdShow(2, buf);
+    sendCmd("leds", currentSeq + 1);
+    break;
+  }
+  case LISTE_MOTS:
+    lcdShow(1, "Liste de mots");
+    lcdShow(2, "");
+    sendCmd("list", currentList + 1);  // re-start slave list (was stopped in enterError)
+    break;
+  case JOURNAUX_1b: {
+    lcdShow(1, "Journaux");
+    lcdShow(2, "erreur trouve");
+    char buf[17];
+    snprintf(buf, sizeof(buf), "error %d", errorX);
+    sendCmd("msg1", buf);
+    sendCmd("msg2", "");
+    break;
+  }
+  default:
+    enterState(prevState);  // full re-init for simple states
+    return;
+  }
+  gameState = prevState;
+  inputCount = 0;
+  inputWindowStart = millis();
+  static const char* stateNames[] = {
+    "ERREUR_CRITIQUE","MODE_MANUAL","JOURNAUX_1","JOURNAUX_1b",
+    "DEBUG_SEQ","JOURNAUX_2","LISTE_MOTS","CODE_RESOLU",
+    "JOURNAUX_3","REDEMARRAGE","LOGIN","WAIT_CARD","SEQ_ERROR","WIN"
+  };
+  Serial.print("[STATE] recover -> "); Serial.println(stateNames[prevState]);
+}
+
 /* ------------------- SETUP ------------------- */
 void setup(){
   Serial.begin(DEBUG_BAUD);
   slaveSerial.begin(SLAVE_BAUD);
   lcd.begin(LCD_COLS, LCD_ROWS);
-  lcdShow(1, "Systeme");
+  lcdShow(1, "Loading...");
   Serial.println("[MASTER] boot");
   for(uint8_t i=0;i<NUM_BTN;i++){ pinMode(pins[i],INPUT_PULLUP); pinMode(leds[i],OUTPUT); }
 
@@ -201,6 +387,8 @@ void setup(){
   rfid.PCD_Init();
   rfid.PCD_SetAntennaGain(rfid.RxGain_max);
   Serial.println("[RFID] ready");
+
+  randomSeed(analogRead(A3));  // floating pin → entropy
 
   // LoRaWAN init
   lorae5.setup_hardware(&Debug_Serial, &LoRa_Serial);
@@ -219,76 +407,17 @@ void setup(){
     delay(2000);
   }
 
-  sendCmd("leds", 1);
-  lcdShow(1, "Entrez la");
-  {
-    char buf[17];
-    snprintf(buf, sizeof(buf), "sequence 1/%d", NB_SEQ); lcdShow(2, buf);
-  }
-  inputWindowStart = millis();
+  enterState(ERREUR_CRITIQUE);
 }
 
 /* ------------------- LOOP ------------------- */
 void loop(){
-
   if(gameState == WIN) return;
-
-  /* -------- SEQUENCES -------- */
-  if(gameState == WAIT_SEQ){
-    readButtons();
-
-    if(inputCount>0 && !anyHoldActive() && millis()-inputWindowStart>SEQ_TIMEOUT_MS){
-      if(checkSequence(currentSeq)){
-        currentSeq++;
-        lcd.setRGB(0, 255, 0);
-        lcdShow(2, "Code valide !");
-        sendCmd("buzz", 4);
-
-        if(currentSeq == NB_SEQ){
-          lcdShow(1, "Passez la carte");
-          lcdShow(2, "");
-          gameState = WAIT_CARD;
-          Serial.println("[GAME] toutes les sequences OK -> WAIT_CARD");
-        } else {
-          sendCmd("leds", currentSeq + 1);
-          lcdShow(1, "Entrez la");
-          char buf[17];
-          snprintf(buf, sizeof(buf), "sequence %d/%d", currentSeq+1, NB_SEQ);
-          lcdShow(2, buf);
-        }
-      } else {
-        lcd.setRGB(255, 0, 0);
-        lcdShow(1, "Code invalide!");
-        lcdShow(2, "Recommencez...");
-        sendCmd("buzz", 3);
-        char (*lines)[17] = seqPrint(inputSeq);
-        sendCmd("msg1", lines[0]);
-        sendCmd("msg2", lines[1]);
-        currentSeq = 0;
-        errorDisplayStart = millis();
-        gameState = SEQ_ERROR;
-        Serial.println("[GAME] sequence NOK -> SEQ_ERROR");
-      }
-
-      inputCount = 0;
-      inputWindowStart = millis();
-    }
-    else if(inputCount==0){ inputWindowStart = millis(); }
-  }
 
   /* -------- ERREUR SÉQUENCE -------- */
   if(gameState == SEQ_ERROR){
-    if(millis() - errorDisplayStart >= ERROR_DISPLAY_MS){
-      lcd.setRGB(255, 255, 255);
-      sendCmd("leds", 1);
-      lcdShow(1, "Entrez la");
-      {
-        char buf[17];
-        snprintf(buf, sizeof(buf), "sequence 1/%d", NB_SEQ); lcdShow(2, buf);
-      }
-      gameState = WAIT_SEQ;
-      Serial.println("[GAME] reset -> WAIT_SEQ");
-    }
+    if(millis() - errorDisplayStart >= ERROR_DISPLAY_MS) exitError();
+    return;
   }
 
   /* -------- PHASE CARTE -------- */
@@ -298,5 +427,87 @@ void loop(){
       rfid.PICC_HaltA();
       rfid.PCD_StopCrypto1();
     }
+    return;
   }
+
+  /* -------- LECTURE BOUTONS -------- */
+  readButtons();
+  if(!seqReady()){
+    if(inputCount == 0) inputWindowStart = millis();
+    return;
+  }
+
+  /* -------- ÉVALUATION SELON L'ÉTAT -------- */
+  if(gameState == ERREUR_CRITIQUE){
+    if(matchSeq(seqA, sizeof(seqA)/sizeof(seqA[0]))) enterState(MODE_MANUAL);
+    else enterError(ERREUR_CRITIQUE);
+
+  } else if(gameState == MODE_MANUAL){
+    if(matchSeq(seqB, sizeof(seqB)/sizeof(seqB[0]))) enterState(JOURNAUX_1);
+    else enterError(MODE_MANUAL);
+
+  } else if(gameState == JOURNAUX_1){
+    if(matchSeq(seqC, sizeof(seqC)/sizeof(seqC[0]))) enterState(JOURNAUX_1b);
+    else enterError(JOURNAUX_1);
+
+  } else if(gameState == JOURNAUX_1b){
+    if(matchSeq(seqD, sizeof(seqD)/sizeof(seqD[0]))) enterState(DEBUG_SEQ);
+    else enterError(JOURNAUX_1b);
+
+  } else if(gameState == DEBUG_SEQ){
+    if(checkSequence(currentSeq)){
+      currentSeq++;
+      sendCmd("buzz", 4);
+      if(currentSeq == NB_SEQ){
+        enterState(JOURNAUX_2);
+      } else {
+        sendCmd("leds", currentSeq + 1);
+        char buf[17];
+        snprintf(buf, sizeof(buf), "%d/5", currentSeq + 1);
+        lcdShow(2, buf);
+      }
+    } else {
+      enterError(DEBUG_SEQ);
+    }
+
+  } else if(gameState == JOURNAUX_2){
+    if(matchSeq(seqE, sizeof(seqE)/sizeof(seqE[0]))) enterState(LISTE_MOTS);
+    else enterError(JOURNAUX_2);
+
+  } else if(gameState == LISTE_MOTS){
+    if(matchSeq(wordSeqs[currentList][currentWord], wordSeqLen[currentList][currentWord])){
+      sendCmd("buzz", 4);
+      currentWord++;
+      if(currentWord == 5){
+        currentWord = 0;
+        currentList++;
+        if(currentList == 5){
+          enterState(CODE_RESOLU);
+        } else {
+          sendCmd("list", currentList + 1);
+        }
+      }
+    } else {
+      enterError(LISTE_MOTS);
+    }
+
+  } else if(gameState == CODE_RESOLU){
+    if(matchSeq(seqF, sizeof(seqF)/sizeof(seqF[0]))) enterState(JOURNAUX_3);
+    else enterError(CODE_RESOLU);
+
+  } else if(gameState == JOURNAUX_3){
+    if(matchSeq(seqG, sizeof(seqG)/sizeof(seqG[0]))) enterState(REDEMARRAGE);
+    else enterError(JOURNAUX_3);
+
+  } else if(gameState == REDEMARRAGE){
+    if(matchSeq(seqH, sizeof(seqH)/sizeof(seqH[0]))) enterState(LOGIN);
+    else enterError(REDEMARRAGE);
+
+  } else if(gameState == LOGIN){
+    if(matchSeq(seqI, sizeof(seqI)/sizeof(seqI[0]))) enterState(WAIT_CARD);
+    else enterError(LOGIN);
+  }
+
+  inputCount = 0;
+  inputWindowStart = millis();
 }
