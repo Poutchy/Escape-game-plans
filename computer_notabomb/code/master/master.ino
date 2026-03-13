@@ -219,7 +219,7 @@ void enterState(GameState s){
     lcdShow(2, "Mode manuel");
     break;
 
-  case JOURNAUX_1:
+  case JOURNAUX_1: {
     lcd.setRGB(255, 255, 255);
     lcdShow(1, "Journaux");
     lcdShow(2, "erreur trouve");
@@ -229,6 +229,7 @@ void enterState(GameState s){
     sendCmd("msg1", b1);
     sendCmd("msg2", b2);
     break;
+  }
 
   case DEBUG_SEQ:
     currentSeq = 0;
@@ -254,7 +255,7 @@ void enterState(GameState s){
     sendCmd("msg2", "aux journaux");
     break;
 
-  case JOURNAUX_2:
+  case JOURNAUX_2: {
     lcd.setRGB(255, 255, 255);
     lcdShow(1, "Journaux");
     lcdShow(2, "erreur trouve");
@@ -263,6 +264,7 @@ void enterState(GameState s){
     sendCmd("msg1", b);
     sendCmd("msg2", "");
     break;
+  }
 
   case LISTE_MOTS:
     currentWord = 0;
@@ -289,8 +291,6 @@ void enterState(GameState s){
     lcd.setRGB(255, 255, 255);
     lcdShow(1, "Redemarrage");
     lcdShow(2, "");
-    delay(3000);
-    enterState(LOGIN);
     break;
 
   case LOGIN:
@@ -411,6 +411,14 @@ void setup(){
 /* ------------------- LOOP ------------------- */
 void loop(){
   if(gameState == WIN) return;
+
+  /* -------- REDEMARRAGE (auto-transition après délai) -------- */
+  if(gameState == REDEMARRAGE){
+    static unsigned long rebootStart = 0;
+    if(rebootStart == 0) rebootStart = millis();
+    if(millis() - rebootStart >= 3000){ rebootStart = 0; enterState(LOGIN); }
+    return;
+  }
 
   /* -------- ERREUR SÉQUENCE -------- */
   if(gameState == SEQ_ERROR){

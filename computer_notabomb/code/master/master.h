@@ -149,7 +149,6 @@ const uint8_t seqLen[] = {
  * SEQUENCES D'ÉTAPES
  * Placeholder = S(BB1), S(BB2), S(BB1) — modifier individuellement
  * ------------------------------------------------------------------ */
-#define PLACEHOLDER_SEQ S(BB1), S(BB2), S(BB1)
 #define MANUAL_MODE S(BB1), S(BB2), S(BR2)
 #define JOURNAL S(BR1), S(BB2), S(BR2)
 #define MODULE_LED P(BR2), S(BB1), S(BR1), S(BB1), R(BR2)
@@ -198,14 +197,13 @@ const uint8_t wordSeqLen[5] = {
 uint8_t currentWord = 0;
 
 // Codes d'erreur aléatoires (générés à ERREUR_CRITIQUE)
-uint16_t errorX = 0, errorY = 0, errorZ = 0;
+uint16_t errorX = 0, errorY = 0;
 
-// Slave serialx 
+// Slave serial
 SoftwareSerial slaveSerial(A0, A1);
 
 // LoRaWAN
 LORAE5 lorae5(devEUI, appEUI, appKey, devAddr, nwkSKey, appSKey);
-uint8_t payloadUpNOK[1]   = {0x01};
-uint8_t payloadUpALIVE[1] = {0x02};
+uint8_t payloadUpNOK[1] = {0x01};
 
 #endif // MASTER_H
