@@ -21,7 +21,7 @@ byte uidWinSize = 4;
 
 rgb_lcd lcd;
 
-#define NB_SEQ 3
+#define NB_SEQ 5
 #define DEBOUNCE 20 // mécanique anti-rebond (20ms)
 #define LONG_PRESS 1000
 
@@ -103,17 +103,23 @@ unsigned long errorTimer = 0;
  *
  *  Seq 1 : R2 → R1 → R2 → B2
  *  Seq 2 : B2 → B1 → B1 → R1
- *  Seq 3 : R1 → R2 → R1 → R2 → R2
+ *  Seq 3 : B1 → B2 → R1 → R2 → R2 → B1 → B1
+ *  Seq 4 : B1 → R2
+ *  Seq 5 : R1 → R2 → R1 → R2 → R2
  * ------------------------------------------------------------------ */
 SequenceEvent seq1[] = { S(BR2), S(BR1), S(BR2), S(BB2) };
 SequenceEvent seq2[] = { S(BB2), S(BB1), S(BB1), S(BR1) };
-SequenceEvent seq3[] = { S(BR1), S(BR2), S(BR1), S(BR2), S(BR2) };
+SequenceEvent seq3[] = { S(BB1), S(BB2), S(BR1), S(BR2), S(BR2), S(BB1), S(BB1) };
+SequenceEvent seq4[] = { S(BB1), S(BR2) };
+SequenceEvent seq5[] = { S(BR1), S(BR2), S(BR1), S(BR2), S(BR2) };
 
-const SequenceEvent *sequences[] = { seq1, seq2, seq3 };
+const SequenceEvent *sequences[] = { seq1, seq2, seq3, seq4, seq5 };
 const uint8_t seqLen[] = {
   sizeof(seq1)/sizeof(seq1[0]),
   sizeof(seq2)/sizeof(seq2[0]),
-  sizeof(seq3)/sizeof(seq3[0])
+  sizeof(seq3)/sizeof(seq3[0]),
+  sizeof(seq4)/sizeof(seq4[0]),
+  sizeof(seq5)/sizeof(seq5[0])
 };
 
 // Slave serial
