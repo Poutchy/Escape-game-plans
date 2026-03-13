@@ -76,9 +76,35 @@ Dans l'ordre de montage, il faut :
 
 ### 2.1. Description
 
+Le Talkie-Walkie est un objet mobile qui sert à débloquer certaines énigmes en donnant des traduction en morse. Au cours de l'escape game, pendant le module NOTABOMB creataines information critiques sont remplacés par des valeurs numériques qui doivent être interprétés comme fréquences sur laquelle régler le Talkie-Walkie afin qu'il donne l'information manquante. Il y a plusieurs fréquences parasites qui bien qu'elle donnent un mot en morse, celui-ci n'est pas utilisé au cours de la partie.
+
 ### 2.2. Modèles 3D
 
+Dans le dossier `talkie_walkie/models` se trouvent les modèles du talkie-walkie au format stl.
+
+Les différentes pièces sont :
+
+- Body, pièce principale contanant les différents composants.
+- Cover, couvercle permettant de refermer l'objet et de tenir l'écran LCD.
+- Potentiomètre, pièce utilitaire permettant un meilleur accès au potentiomètre depuis l'extèrieur de la boîte.
+- Antenna, élément décoratif attaché à l'aide d'un pistolet à colle chaude
+
+Afin de prévisualiser les différentes pièces, il est possible de les consulterles liens suivants :  
+[Body et Cover sur Oneshape](https://cad.onshape.com/documents/801e0487950edee7d26ae06d/w/179b24fce42323d92899fa35/e/3736d7b43e1179c293d78ec2?renderMode=0&uiState=69b3da3ace0b73e0ca55221f)  
+[Potentiomètre sur Oneshape](https://cad.onshape.com/documents/8601630b354977538c2c7785/w/702d549a25bdc909d3e97ad7/e/04356c1b8628b31ff151159d)
+[Antenna sur Thingiverse](https://www.thingiverse.com/thing:2873478)  
+
 ### 2.3. Montage
+
+1. Imbrique l'écran dans le `Cover` en ayant brancher un coté du calbe Grove.
+2. Brancher les autres composants  à la carte Arduino :
+   - Buzzer -> D4
+   - Potentiomètre -> A0
+   - Batterie
+3. Placer le `Potentiomètre` dans le trou dans le `Body`.
+4. Imbriquer la carte Arduino et la batterie dans le `Body`.
+5. Brancher l'écran à l'ardiuno sur un I2C.
+6. Refermer le Talkie-Walkie.
 
 ## 3. Préparation de l'escape game
 
