@@ -281,6 +281,14 @@ void enterState(GameState s){
     sendCmd("list", 0);
     break;
 
+  case CODE_MODIFIE_2:
+    lcd.setRGB(255, 255, 255);
+    lcdShow(1, "Code modifie");
+    lcdShow(2, "");
+    sendCmd("msg1", "Retournez");
+    sendCmd("msg2", "aux journaux");
+    break;
+
   case JOURNAUX_3:
     lcd.setRGB(255, 255, 255);
     lcdShow(1, "Journaux");
