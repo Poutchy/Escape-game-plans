@@ -204,23 +204,22 @@ void enterState(GameState s){
 
   switch(s){
   case ERREUR_CRITIQUE:
-    errorX = random(100, 999);
-    errorY = random(100, 999);
-    errorZ = random(100, 999);
+    errorX = 4617;
+    errorY = 6349;
     lcd.setRGB(255, 0, 0);
     lcdShow(1, "Erreur critique!");
     lcdShow(2, "");
-    sendCmd("msg1", "Entrer un code");
+    sendCmd("msg1", "...");
     sendCmd("msg2", "");
     break;
 
   case MODE_MANUAL:
     lcd.setRGB(255, 255, 255);
-    lcdShow(1, "Mode Manual");
-    lcdShow(2, "");
+    lcdShow(1, "Activation");
+    lcdShow(2, "Mode manuel");
     break;
 
-  case JOURNAUX_1: {
+  case JOURNAUX_1:
     lcd.setRGB(255, 255, 255);
     lcdShow(1, "Journaux");
     lcdShow(2, "erreur trouve");
@@ -230,37 +229,40 @@ void enterState(GameState s){
     sendCmd("msg1", b1);
     sendCmd("msg2", b2);
     break;
-  }
-
-  case JOURNAUX_1b: {
-    lcd.setRGB(255, 255, 255);
-    lcdShow(1, "Journaux");
-    lcdShow(2, "erreur trouve");
-    char b[17];
-    snprintf(b, sizeof(b), "error %d", errorX);
-    sendCmd("msg1", b);
-    sendCmd("msg2", "");
-    break;
-  }
 
   case DEBUG_SEQ:
     currentSeq = 0;
     lcd.setRGB(255, 255, 255);
-    lcdShow(1, "Debug sequence");
+    lcdShow(1, "Probleme");
     lcdShow(2, "1/5");
     sendCmd("leds", 1);
     break;
+  
+  case CODE_RESOLU:
+    lcd.setRGB(0,255,0);
+    lcdShow(1, "Probleme resolu!");
+    lcdShow(2, "");
+    sendCmd("msg1", "Entrez le code");
+    sendCmd("msg2", "de validation");
+    break;
+  
+  case CODE_MODIFIE_1:
+    lcd.setRGB(255,255,255);
+    lcdShow(1, "Code modifie");
+    lcdShow(2, "");
+    sendCmd("msg1", "Retournez");
+    sendCmd("msg2", "aux journaux");
+    break;
 
-  case JOURNAUX_2: {
+  case JOURNAUX_2:
     lcd.setRGB(255, 255, 255);
     lcdShow(1, "Journaux");
-    lcdShow(2, "");
+    lcdShow(2, "erreur trouve");
     char b[17];
-    snprintf(b, sizeof(b), "error %d", errorZ);
+    snprintf(b, sizeof(b), "error %d", errorY);
     sendCmd("msg1", b);
     sendCmd("msg2", "");
     break;
-  }
 
   case LISTE_MOTS:
     currentList = 0;
@@ -271,7 +273,7 @@ void enterState(GameState s){
     sendCmd("list", 1);
     break;
 
-  case CODE_RESOLU:
+  case CODE_RESOLU2:
     lcd.setRGB(255, 255, 255);
     lcdShow(1, "Code resolu !");
     lcdShow(2, "");
@@ -288,12 +290,14 @@ void enterState(GameState s){
     lcd.setRGB(255, 255, 255);
     lcdShow(1, "Redemarrage");
     lcdShow(2, "");
+    delay(3000);
+    enterState(LOGIN);
     break;
 
   case LOGIN:
     lcd.setRGB(255, 255, 255);
-    lcdShow(1, "Login");
-    lcdShow(2, "");
+    lcdShow(1, "Connexion");
+    lcdShow(2, "Mot de passe ?");
     break;
 
   case WAIT_CARD:
@@ -308,8 +312,8 @@ void enterState(GameState s){
     break;
   }
   static const char* stateNames[] = {
-    "ERREUR_CRITIQUE","MODE_MANUAL","JOURNAUX_1","JOURNAUX_1b",
-    "DEBUG_SEQ","JOURNAUX_2","LISTE_MOTS","CODE_RESOLU",
+    "ERREUR_CRITIQUE","MODE_MANUAL","JOURNAUX_1",
+    "DEBUG_SEQ","JOURNAUX_2","LISTE_MOTS","CODE_RESOLU2",
     "JOURNAUX_3","REDEMARRAGE","LOGIN","WAIT_CARD","SEQ_ERROR","WIN"
   };
   Serial.print("[STATE] -> "); Serial.println(stateNames[s]);
@@ -349,15 +353,6 @@ void exitError(){
     lcdShow(2, "");
     sendCmd("list", currentList + 1);  // re-start slave list (was stopped in enterError)
     break;
-  case JOURNAUX_1b: {
-    lcdShow(1, "Journaux");
-    lcdShow(2, "erreur trouve");
-    char buf[17];
-    snprintf(buf, sizeof(buf), "error %d", errorX);
-    sendCmd("msg1", buf);
-    sendCmd("msg2", "");
-    break;
-  }
   default:
     enterState(prevState);  // full re-init for simple states
     return;
@@ -366,8 +361,8 @@ void exitError(){
   inputCount = 0;
   inputWindowStart = millis();
   static const char* stateNames[] = {
-    "ERREUR_CRITIQUE","MODE_MANUAL","JOURNAUX_1","JOURNAUX_1b",
-    "DEBUG_SEQ","JOURNAUX_2","LISTE_MOTS","CODE_RESOLU",
+    "ERREUR_CRITIQUE","MODE_MANUAL","JOURNAUX_1",
+    "DEBUG_SEQ","JOURNAUX_2","LISTE_MOTS","CODE_RESOLU2",
     "JOURNAUX_3","REDEMARRAGE","LOGIN","WAIT_CARD","SEQ_ERROR","WIN"
   };
   Serial.print("[STATE] recover -> "); Serial.println(stateNames[prevState]);
@@ -407,7 +402,7 @@ void setup(){
     delay(2000);
   }
 
-  enterState(ERREUR_CRITIQUE);
+  enterState(JOURNAUX_2);
 }
 
 /* ------------------- LOOP ------------------- */
@@ -447,19 +442,15 @@ void loop(){
     else enterError(MODE_MANUAL);
 
   } else if(gameState == JOURNAUX_1){
-    if(matchSeq(seqC, sizeof(seqC)/sizeof(seqC[0]))) enterState(JOURNAUX_1b);
-    else enterError(JOURNAUX_1);
-
-  } else if(gameState == JOURNAUX_1b){
     if(matchSeq(seqD, sizeof(seqD)/sizeof(seqD[0]))) enterState(DEBUG_SEQ);
-    else enterError(JOURNAUX_1b);
+    else enterError(JOURNAUX_1);
 
   } else if(gameState == DEBUG_SEQ){
     if(checkSequence(currentSeq)){
       currentSeq++;
       sendCmd("buzz", 4);
       if(currentSeq == NB_SEQ){
-        enterState(JOURNAUX_2);
+        enterState(CODE_RESOLU);
       } else {
         sendCmd("leds", currentSeq + 1);
         char buf[17];
@@ -469,40 +460,35 @@ void loop(){
     } else {
       enterError(DEBUG_SEQ);
     }
-
+  } else if (gameState == CODE_RESOLU) {
+    if(matchSeq(seqC, sizeof(seqC)/sizeof(seqC[0]))) enterState(CODE_MODIFIE_1);
+    else enterError(CODE_RESOLU);
+  }else if (gameState == CODE_MODIFIE_1) {
+    if(matchSeq(seqJ, sizeof(seqJ)/sizeof(seqJ[0]))) enterState(JOURNAUX_2);
+    else enterError(CODE_MODIFIE_1);
   } else if(gameState == JOURNAUX_2){
     if(matchSeq(seqE, sizeof(seqE)/sizeof(seqE[0]))) enterState(LISTE_MOTS);
     else enterError(JOURNAUX_2);
-
   } else if(gameState == LISTE_MOTS){
-    if(matchSeq(wordSeqs[currentList][currentWord], wordSeqLen[currentList][currentWord])){
+    if(matchSeq(wordSeqs[currentWord], wordSeqLen[currentWord])){
       sendCmd("buzz", 4);
       currentWord++;
+      sendCmd("list", currentList + 1);
       if(currentWord == 5){
-        currentWord = 0;
-        currentList++;
-        if(currentList == 5){
-          enterState(CODE_RESOLU);
-        } else {
-          sendCmd("list", currentList + 1);
-        }
+        enterState(CODE_RESOLU2);
       }
     } else {
       enterError(LISTE_MOTS);
     }
-
-  } else if(gameState == CODE_RESOLU){
+  } else if(gameState == CODE_RESOLU2){
+    if(matchSeq(seqK, sizeof(seqK)/sizeof(seqK[0]))) enterState(CODE_MODIFIE_2);
+    else enterError(CODE_RESOLU2);
+  } else if (gameState == CODE_MODIFIE_2) {
     if(matchSeq(seqF, sizeof(seqF)/sizeof(seqF[0]))) enterState(JOURNAUX_3);
-    else enterError(CODE_RESOLU);
-
+    else enterError(CODE_MODIFIE_2);
   } else if(gameState == JOURNAUX_3){
     if(matchSeq(seqG, sizeof(seqG)/sizeof(seqG[0]))) enterState(REDEMARRAGE);
     else enterError(JOURNAUX_3);
-
-  } else if(gameState == REDEMARRAGE){
-    if(matchSeq(seqH, sizeof(seqH)/sizeof(seqH[0]))) enterState(LOGIN);
-    else enterError(REDEMARRAGE);
-
   } else if(gameState == LOGIN){
     if(matchSeq(seqI, sizeof(seqI)/sizeof(seqI[0]))) enterState(WAIT_CARD);
     else enterError(LOGIN);

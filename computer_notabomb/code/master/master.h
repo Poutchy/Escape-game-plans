@@ -54,11 +54,13 @@ enum GameState {
     ERREUR_CRITIQUE,
     MODE_MANUAL,
     JOURNAUX_1,
-    JOURNAUX_1b,
     DEBUG_SEQ,
+    CODE_RESOLU,
+    CODE_MODIFIE_1,
     JOURNAUX_2,
     LISTE_MOTS,
-    CODE_RESOLU,
+    CODE_RESOLU2,
+    CODE_MODIFIE_2,
     JOURNAUX_3,
     REDEMARRAGE,
     LOGIN,
@@ -148,16 +150,25 @@ const uint8_t seqLen[] = {
  * Placeholder = S(BB1), S(BB2), S(BB1) — modifier individuellement
  * ------------------------------------------------------------------ */
 #define PLACEHOLDER_SEQ S(BB1), S(BB2), S(BB1)
+#define MANUAL_MODE S(BB1), S(BB2), S(BR2)
+#define JOURNAL S(BR1), S(BB2), S(BR2)
+#define MODULE_LED P(BR2), S(BB1), S(BR1), S(BB1), R(BR2)
+#define MODIFY_CODE_1 S(BB1), P(BB2), S(BR2), S(BR2), S(BR2), R(BB2), S(BR2)
+#define MODULE_WORD P(BR2), S(BB2), S(BB2), S(BB1), R(BR2)
+#define MODIFY_CODE_2 S(BB1), P(BB2), S(BB1), S(BR1), S(BB1), R(BB2), S(BR2)
+#define REBOOT P(BB1), S(BB2), S(BB2), S(BB2), R(BB1) 
+#define PASSWORD S(BB1), S(BB2), S(BR1), S(BR2)
 
-SequenceEvent seqA[] = { PLACEHOLDER_SEQ };  // ERREUR_CRITIQUE → MODE_MANUAL
-SequenceEvent seqB[] = { PLACEHOLDER_SEQ };  // MODE_MANUAL    → JOURNAUX_1
-SequenceEvent seqC[] = { PLACEHOLDER_SEQ };  // JOURNAUX_1     → JOURNAUX_1b (clear msg2)
-SequenceEvent seqD[] = { PLACEHOLDER_SEQ };  // JOURNAUX_1b    → DEBUG_SEQ   (clear msg1)
-SequenceEvent seqE[] = { PLACEHOLDER_SEQ };  // JOURNAUX_2     → LISTE_MOTS
-SequenceEvent seqF[] = { PLACEHOLDER_SEQ };  // CODE_RESOLU    → JOURNAUX_3
-SequenceEvent seqG[] = { PLACEHOLDER_SEQ };  // JOURNAUX_3     → REDEMARRAGE
-SequenceEvent seqH[] = { PLACEHOLDER_SEQ };  // REDEMARRAGE    → LOGIN
-SequenceEvent seqI[] = { PLACEHOLDER_SEQ };  // LOGIN          → WAIT_CARD
+SequenceEvent seqA[] = { MANUAL_MODE };      // ERREUR_CRITIQUE → MODE_MANUAL
+SequenceEvent seqB[] = { JOURNAL };          // MODE_MANUAL     → JOURNAUX_1
+SequenceEvent seqD[] = { MODULE_LED };       // JOURNAUX_1      → DEBUG_SEQ   → CODE_RESOLU
+SequenceEvent seqC[] = { MODIFY_CODE_1 };    // CODE_RESOLU     → CODE_MODIFIE
+SequenceEvent seqJ[] = { JOURNAL };          // CODE_MODIFIE    → JOURNAUX_2
+SequenceEvent seqE[] = { MODULE_WORD };      // JOURNAUX_2      → LISTE_MOTS → CODE_RESOLU2
+SequenceEvent seqK[] = { MODIFY_CODE_2 };    // CODE_RESOLU2    → CODE_MODIFIE_2
+SequenceEvent seqF[] = { JOURNAL };          // CODE_MODIFIE_2  → JOURNAUX_3
+SequenceEvent seqG[] = { REBOOT };           // JOURNAUX_3      → REDEMARRAGE → LOGIN
+SequenceEvent seqI[] = { PASSWORD };         // LOGIN           → WAIT_CARD
 
 /* ------------------------------------------------------------------
  * SÉQUENCES MOTS (5 listes × 5 mots)
@@ -168,52 +179,20 @@ SequenceEvent seqI[] = { PLACEHOLDER_SEQ };  // LOGIN          → WAIT_CARD
  * Liste 3 : Windows    Sega     Modem     Disquette Joystick
  * Liste 4 : Windows    BIOS     Bureau    Dossier   Cable
  * ------------------------------------------------------------------ */
-SequenceEvent wSeq_0_0[] = { S(BB1) };
-SequenceEvent wSeq_0_1[] = { S(BB2), S(BB1) };
-SequenceEvent wSeq_0_2[] = { S(BR1) };
-SequenceEvent wSeq_0_3[] = { S(BR2) };
-SequenceEvent wSeq_0_4[] = { S(BR1), S(BR1) };
+SequenceEvent wSeq_0[] = { S(BB1), S(BB2), S(BB1), S(BR1), S(BR2), S(BR1), S(BR1)};
+SequenceEvent wSeq_1[] = { S(BB2), S(BB2), S(BB2), S(BB1), S(BR2)};
+SequenceEvent wSeq_2[] = { S(BB2), S(BR2), S(BR2), S(BR2), S(BB1)};
+SequenceEvent wSeq_3[] = { S(BB2), S(BB1), S(BB2), S(BB1), S(BR1), S(BB2), S(BB2)};
+SequenceEvent wSeq_4[] = { S(BB2), S(BB1), S(BB1), S(BB1), S(BB2), S(BB1), S(BR1)};
 
-SequenceEvent wSeq_1_0[] = { S(BB2) };
-SequenceEvent wSeq_1_1[] = { S(BB2) };
-SequenceEvent wSeq_1_2[] = { S(BB2) };
-SequenceEvent wSeq_1_3[] = { S(BB1) };
-SequenceEvent wSeq_1_4[] = { S(BR2) };
-
-SequenceEvent wSeq_2_0[] = { PLACEHOLDER_SEQ };
-SequenceEvent wSeq_2_1[] = { S(BB2) };
-SequenceEvent wSeq_2_2[] = { S(BR2), S(BR2) };
-SequenceEvent wSeq_2_3[] = { S(BR2) };
-SequenceEvent wSeq_2_4[] = { S(BB1) };
-
-SequenceEvent wSeq_3_0[] = { S(BB2), S(BB1) };
-SequenceEvent wSeq_3_1[] = { S(BB2) };
-SequenceEvent wSeq_3_2[] = { S(BB1) };
-SequenceEvent wSeq_3_3[] = { S(BR1) };
-SequenceEvent wSeq_3_4[] = { S(BB2), S(BB2) };
-
-SequenceEvent wSeq_4_0[] = { S(BB2), S(BB1) };
-SequenceEvent wSeq_4_1[] = { S(BB1), S(BB1) };
-SequenceEvent wSeq_4_2[] = { S(BB2) };
-SequenceEvent wSeq_4_3[] = { S(BB1) };
-SequenceEvent wSeq_4_4[] = { S(BR1) };
-
-const SequenceEvent* wordSeqs[5][5] = {
-  {wSeq_0_0, wSeq_0_1, wSeq_0_2, wSeq_0_3, wSeq_0_4},
-  {wSeq_1_0, wSeq_1_1, wSeq_1_2, wSeq_1_3, wSeq_1_4},
-  {wSeq_2_0, wSeq_2_1, wSeq_2_2, wSeq_2_3, wSeq_2_4},
-  {wSeq_3_0, wSeq_3_1, wSeq_3_2, wSeq_3_3, wSeq_3_4},
-  {wSeq_4_0, wSeq_4_1, wSeq_4_2, wSeq_4_3, wSeq_4_4},
+const SequenceEvent* wordSeqs[5] = {wSeq_0, wSeq_1, wSeq_2, wSeq_3, wSeq_4};
+const uint8_t wordSeqLen[5] = {
+  sizeof(wSeq_0)/sizeof(wSeq_0[0]),
+  sizeof(wSeq_1)/sizeof(wSeq_1[0]),
+  sizeof(wSeq_2)/sizeof(wSeq_2[0]),
+  sizeof(wSeq_3)/sizeof(wSeq_3[0]),
+  sizeof(wSeq_4)/sizeof(wSeq_4[0])
 };
-#define SL(a) (sizeof(a)/sizeof(a[0]))
-const uint8_t wordSeqLen[5][5] = {
-  { SL(wSeq_0_0), SL(wSeq_0_1), SL(wSeq_0_2), SL(wSeq_0_3), SL(wSeq_0_4) },
-  { SL(wSeq_1_0), SL(wSeq_1_1), SL(wSeq_1_2), SL(wSeq_1_3), SL(wSeq_1_4) },
-  { SL(wSeq_2_0), SL(wSeq_2_1), SL(wSeq_2_2), SL(wSeq_2_3), SL(wSeq_2_4) },
-  { SL(wSeq_3_0), SL(wSeq_3_1), SL(wSeq_3_2), SL(wSeq_3_3), SL(wSeq_3_4) },
-  { SL(wSeq_4_0), SL(wSeq_4_1), SL(wSeq_4_2), SL(wSeq_4_3), SL(wSeq_4_4) },
-};
-#undef SL
 
 // LISTE_MOTS progress
 uint8_t currentList = 0;
@@ -222,7 +201,7 @@ uint8_t currentWord = 0;
 // Codes d'erreur aléatoires (générés à ERREUR_CRITIQUE)
 uint16_t errorX = 0, errorY = 0, errorZ = 0;
 
-// Slave serial
+// Slave serialx 
 SoftwareSerial slaveSerial(A0, A1);
 
 // LoRaWAN
