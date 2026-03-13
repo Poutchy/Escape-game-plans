@@ -1,39 +1,94 @@
-Magic 6 Cube
-=============
+# Magic 6 Cube
 
-Description
------------
+## Description
 
-"magic 6 cube" est un prototype de cube interactif conçu pour des escape-games. Il utilise un Arduino pour piloter un écran RGB, lire un capteur accéléromètre/gyroscope et gérer deux boutons (bleu et rouge). Le cube détecte les mouvements et fournit un retour visuel.
+**Magic 6 Cube** est un prototype de cube interactif inspiré du jouet **Magic 8 Ball**.  
+Il est conçu pour être utilisé dans des **escape games**.
 
-Connexions (général)
---------------------
+L'objet utilise un **Arduino** pour piloter un écran LCD RGB, lire un **capteur accéléromètre / gyroscope** et gérer deux boutons.
 
-- Écran RGB : bus I2C (SDA / SCL)
-- Capteur accel/gyro : bus I2C (SDA / SCL)
-- Bouton bleu : broches D4 / D5 (ou selon le sketch)
-- Bouton rouge: broches D2 / D3
+Le cube détecte son **orientation dans l’espace** et affiche une **couleur correspondante sur l’écran LCD**.  
+Le joueur doit entrer un **code de 4 couleurs** en inclinant le cube et en validant chaque choix avec un bouton.
 
-Consultez le dossier `schemes/` pour le schéma de câblage détaillé.
+Selon la combinaison saisie, un **message s’affiche** et fournit un indice pour résoudre une énigme.
 
-Structure du projet
--------------------
+---
 
-- `code/` : sketch Arduino principal (`sketch_mar2a.ino`)
-- `models/` : modèles 3D
-- `PDFs/` : documents uticomplémentaires
-- `schemes/` : schémas électriques et diagrammes
+# Connexions
 
-Installation et utilisation
---------------------------
+Les composants sont reliés de la manière suivante :
 
-1. Ouvrir `code/sketch_mar2a.ino` dans l'IDE Arduino.
-2. Installer les bibliothèques nécessaires (I2C, écran, MPU6050) si besoin.
-3. Vérifier et ajuster les définitions de broches dans le sketch si nécessaire.
-4. Téléverser le sketch sur l'Arduino et tester les entrées (boutons) et l'affichage.
+- **Grove LCD RGB Backlight** : bus I2C
+- **Grove 6-Axis Accelerometer & Gyroscope** : bus I2C
+- **Red LED Button** : broche D2
+- **Blue LED Button** : broche D4
 
-Remarques
---------
+Consultez le dossier **`schemes/`** pour le schéma de câblage détaillé.
 
-- Les adresses I2C et les broches peuvent varier selon le matériel utilisé.
-- Le schéma fourni dans `schemes/` est un diagramme simplifié pour guider le câblage.
+---
+
+# Installation et utilisation
+
+1. Ouvrir `code/sketch_mar2a.ino` dans **Arduino IDE**.
+2. Installer les bibliothèques nécessaires :
+   - I2C
+   - Grove LCD RGB Backlight
+   - MPU6050 (accéléromètre / gyroscope)
+3. Vérifier les broches utilisées pour les boutons dans le sketch.
+4. Téléverser le programme sur l’Arduino.
+5. Tester les boutons et l’affichage.
+
+---
+
+# Fonctionnement
+
+Le cube utilise un **accéléromètre / gyroscope** pour détecter son orientation.
+
+Chaque orientation correspond à :
+
+- une **couleur affichée**
+- une **lettre du code**
+
+### Séquence d’utilisation
+
+1. Incliner le cube pour sélectionner une couleur.
+2. Appuyer sur le **bouton bleu** pour valider.
+3. Répéter l’opération **4 fois**.
+4. Lire le **message affiché**.
+5. Appuyer sur le **bouton rouge** pour recommencer.
+
+---
+
+# Tableau des orientations
+
+| Orientation | Couleur | Numéro |
+|:------------:|:-----:|:-----:|
+| Plat | Vert | 1 |
+| Retourné | Rouge | 2 |
+| Gauche | Bleu | 3 |
+| Droite | Jaune | 4 |
+| Avant | Orange | 5 |
+| Arrière | Magenta | 6 |
+
+---
+
+# Messages / indices
+
+| Orientation | Code secret | Texte | |
+|:-------------------------------------:|:-----------:|:-----:|:-:|
+| Plat, Gauche, Avant, Retourne | V - B - O - R | La troisième clé commence par V | ✅3 |
+| Avant, Arrière, Plat, Gauche | O - M - V - B | Les clés encore utilisables contiennent la lettre B | ✅2 |
+| Droite, Arrière, Retourne, Gauche | J - M - R - B | La clé 1 commence par une lettre plus proche de A que celle de la 2e | ✅1 |
+| Retourne, Droite, Gauche, Plat | R - B - J - V | Une clé valide ne commence jamais par R | ❌ |
+| Avant, Droite, Plat, Arrière | O - J - V - M | Une seule clé commence par une voyelle | ❌ |
+| Gauche, Retourne, Droite, Avant | B - R - B - O | Les clés valides ne commencent pas par B | ❌ |
+| Plat, Plat, Plat, Plat | V - V - V - V | Message 1 | X |
+| Retourne, Retourne, Retourne, Retourne | R - R - R - R | Message 1 | X |
+
+---
+
+# Remarques
+
+- Les **adresses I2C** peuvent varier selon le matériel utilisé.
+- Les **broches des boutons** peuvent être modifiées dans le sketch Arduino.
+- Le schéma présent dans **`schemes/`** est un diagramme simplifié pour aider au câblage.

@@ -4,8 +4,8 @@
 #define GROVE_VCC 5
 #define FULL_ANGLE 360
 
-#define MAX_FREQ 900
 #define MIN_FREQ 136
+#define MAX_FREQ 900
 
 #define ROTARY_ANGLE_SENSOR A0
 #define BUZZER 4
@@ -14,7 +14,7 @@
 #define LOCK_TIME 3000        // must hold frequency for 3s
 #define MESSAGE_INTERVAL 5000 // repeat message every 5s
 
-#define NB_FREQ 2
+#define NB_FREQ 14
 
 #define MORSE_FREQ 800
 #define DOT_TIME 120
@@ -27,12 +27,37 @@ rgb_lcd lcd;
 /* ---------- STATIONS ---------- */
 
 const int FREQS[NB_FREQ] = {
-    300,
-    450};
+    149, // red
+    200, // sos
+    280, // blue
+    333, // truth
+    404, // ???
+    475, // yellow
+    538, // code
+    567, // white
+    611, // dcxi
+    666, // devil
+    708, // boca
+    777, // casino
+    806, // beer
+    872, // green
+};
 
 const char *MESSAGES[NB_FREQ] = {
-    "... --- ...",   // SOS
-    "-.-. --- -.. ." // CODE
+    ".-. . -..",                // RED
+    "... --- ...",              // SOS
+    "-... .-.. ..- .",          // BLUE
+    "- .-. ..- - ....",         // TRUTH
+    "..--.. ..--.. ..--..",     // ???
+    "-.-- . .-.. .-.. --- .--", // YELLOW
+    "-.-. --- -.. .",           // CODE
+    ".-- .... .. - .",          // WHITE
+    "-.. -.-. -..- ..",         // DCXI
+    "-.. . ...- .. .-..",       // DEVIL
+    "-... --- -.-. .-",         // BOCA
+    "-.-. .- ... .. -. ---",    // CASINO
+    "-... . . .-.",             // BEER
+    "--. .-. . . -.",           // GREEN
 };
 
 /* ---------- SMOOTHING --------- */
