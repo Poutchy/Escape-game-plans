@@ -484,7 +484,7 @@ void loop(){
     if(matchSeq(wordSeqs[currentWord], wordSeqLen[currentWord])){
       sendCmd("buzz", 4);
       currentWord++;
-      if(currentWord == 5){
+      if(currentWord == 4){
         enterState(CODE_RESOLU2);
       } else {
         sendCmd("list", currentWord + 1);
