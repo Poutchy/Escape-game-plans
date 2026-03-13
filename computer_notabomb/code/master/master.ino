@@ -4,39 +4,39 @@ void readButtons(){
   unsigned long now = millis();
   for(uint8_t i=0;i<NUM_BTN;i++){
     bool r = digitalRead(pins[i]);
-    if(r != raw[i]){ raw[i]=r; tdb[i]=now; }
-    if((now-tdb[i])>DEBOUNCE && db[i]!=raw[i]){
-      db[i]=raw[i];
-      digitalWrite(leds[i], !db[i]);
-      if(db[i]==LOW){ tpress[i]=now; longSent[i]=false; }
+    if(r != rawState[i]){ rawState[i]=r; debounceTime[i]=now; }
+    if((now-debounceTime[i])>DEBOUNCE && buttonState[i]!=rawState[i]){
+      buttonState[i]=rawState[i];
+      digitalWrite(leds[i], !buttonState[i]);
+      if(buttonState[i]==LOW){ pressTime[i]=now; longTriggered[i]=false; }
       else {
-        if(hold==i) releaseHold(i);
-        else if(!longSent[i]) shortPress(i);
+        if(holdButton==i) releaseHold(i);
+        else if(!longTriggered[i]) shortPress(i);
       }
     }
     // Appui long
-    if(db[i]==LOW && !longSent[i] && (now-tpress[i])>=LONG_PRESS){
-      longSent[i]=true;
+    if(buttonState[i]==LOW && !longTriggered[i] && (now-pressTime[i])>=LONG_PRESS){
+      longTriggered[i]=true;
       longPress(i);
     }
   }
 }
 
 bool anyHoldActive(){
-  for(uint8_t i=0;i<NUM_BTN;i++) if(db[i]==LOW) return true;
+  for(uint8_t i=0;i<NUM_BTN;i++) if(buttonState[i]==LOW) return true;
   return false;
 }
 
 void addEvent(SequenceType t, uint8_t pin){
-  if(inputLen < 20){
-    inputSeq[inputLen++] = {t, pin};
-    t0 = millis();
+  if(inputCount < INPUT_MAX){
+    inputSeq[inputCount++] = {t, pin};
+    inputWindowStart = millis();
   }
 }
 
 void shortPress(uint8_t i){ Serial.print("[BTN] short: "); Serial.println(names[i]); addEvent(SHORT_INPUT,pins[i]); }
-void longPress(uint8_t i){ Serial.print("[BTN] long:  "); Serial.println(names[i]); hold=i; addEvent(PRESS_INPUT,pins[i]); }
-void releaseHold(uint8_t i){ Serial.print("[BTN] release: "); Serial.println(names[i]); addEvent(RELEASE_INPUT,pins[i]); hold=-1; }
+void longPress(uint8_t i){ Serial.print("[BTN] long:  "); Serial.println(names[i]); holdButton=i; addEvent(PRESS_INPUT,pins[i]); }
+void releaseHold(uint8_t i){ Serial.print("[BTN] release: "); Serial.println(names[i]); addEvent(RELEASE_INPUT,pins[i]); holdButton=-1; }
 
 /* ------------------------------------------------------------------
  * ------------- ENREGISTREMENT DES SÉQUENCES ATTENDUES -------------
@@ -70,8 +70,8 @@ void releaseHold(uint8_t i){ Serial.print("[BTN] release: "); Serial.println(nam
  *  };
  * ------------------------------------------------------------------ */
 bool checkSequence(uint8_t idx){
-  if(inputLen != seqLen[idx]) return false;
-  for(uint8_t i=0;i<inputLen;i++){
+  if(inputCount != seqLen[idx]) return false;
+  for(uint8_t i=0;i<inputCount;i++){
     if(inputSeq[i].type!=sequences[idx][i].type) return false;
     if(inputSeq[i].pin!=sequences[idx][i].pin) return false;
   }
@@ -86,7 +86,7 @@ char (*seqPrint(SequenceEvent* seq))[17]{
   char line1[17] = "";
   char line2[17] = "";
 
-  uint8_t maxEvents = (inputLen > 10) ? 10 : inputLen;
+  uint8_t maxEvents = (inputCount > 10) ? 10 : inputCount;
 
   for(uint8_t i=0;i<maxEvents;i++){
     const char* label = "?";
@@ -146,41 +146,18 @@ void loraSend(uint8_t* payload, uint8_t size){
 }
 
 /* ---------------- TRANSMISSION ---------------- */
-void sendSeq(uint8_t id){ 
-  Serial.print("[TX] leds:"); 
-  Serial.println(id); 
-  slaveSerial.print("leds:"); slaveSerial.println(id); 
+void sendCmd(const char* key, const char* val) {
+  Serial.print("[TX] "); Serial.print(key);
+  if(val) { Serial.print(":"); Serial.println(val); }
+  else Serial.println();
+  slaveSerial.print(key);
+  if(val) { slaveSerial.print(":"); slaveSerial.println(val); }
+  else slaveSerial.println();
 }
-void sendBuzz(uint8_t id){ 
-  Serial.print("[TX] buzz:"); 
-  Serial.println(id); 
-  slaveSerial.print("buzz:"); 
-  slaveSerial.println(id); 
-}
-void sendMsg1(const char* msg){ 
-  Serial.print("[TX] msg1:"); 
-  Serial.println(msg); 
-  slaveSerial.print("msg1:"); 
-  slaveSerial.println(msg); 
-}
-void sendMsg2(const char* msg){ 
-  Serial.print("[TX] msg2:"); 
-  Serial.println(msg); 
-  slaveSerial.print("msg2:"); 
-  slaveSerial.println(msg); }
-void sendCol(uint8_t col){ 
-  Serial.print("[TX] col:"); 
-  Serial.println(col); 
-  slaveSerial.print("col:"); 
-  slaveSerial.println(col); 
-}
-void sendOpen(){ 
-  Serial.println("[TX] open"); 
-  slaveSerial.println("open"); 
-}
-void sendClose(){ 
-  Serial.println("[TX] close"); 
-  slaveSerial.println("close");
+
+void sendCmd(const char* key, int val) {
+  char buf[8]; snprintf(buf, sizeof(buf), "%d", val);
+  sendCmd(key, buf);
 }
 
 /* ---------------- GESTION CARTE RFID ---------------- */
@@ -196,25 +173,25 @@ void handleCard(){
     lcd.setRGB(0, 255, 0);
     lcdShow(1, "BRAVO !");
     lcdShow(2, "Acces autorise");
-    sendSeq(4);
-    sendBuzz(7);
-    sendCol(2);
-    sendOpen();
+    sendCmd("leds", 4);
+    sendCmd("buzz", 7);
+    sendCmd("col", 2);
+    sendCmd("open");
     gameState = WIN;
   } else {
     lcd.setRGB(255, 0, 0);
     lcdShow(1, "Mauvaise carte!");
     lcdShow(2, "Reessayez...");
-    sendBuzz(3);
+    sendCmd("buzz", 3);
     loraSend(payloadUpNOK, sizeof(payloadUpNOK));
   }
 }
 
 /* ------------------- SETUP ------------------- */
 void setup(){
-  Serial.begin(115200);
-  slaveSerial.begin(4800);
-  lcd.begin(16,2);
+  Serial.begin(DEBUG_BAUD);
+  slaveSerial.begin(SLAVE_BAUD);
+  lcd.begin(LCD_COLS, LCD_ROWS);
   lcdShow(1, "Systeme");
   Serial.println("[MASTER] boot");
   for(uint8_t i=0;i<NUM_BTN;i++){ pinMode(pins[i],INPUT_PULLUP); pinMode(leds[i],OUTPUT); }
@@ -227,20 +204,28 @@ void setup(){
 
   // LoRaWAN init
   lorae5.setup_hardware(&Debug_Serial, &LoRa_Serial);
-  lorae5.setup_lorawan(REGION, ACTIVATION_MODE, CLASS, SPREADING_FACTOR, ADAPTIVE_DR, CONFIRMED, PORT_UP, false, 60000);
+  lorae5.setup_lorawan(REGION, ACTIVATION_MODE, CLASS, SPREADING_FACTOR, ADAPTIVE_DR, CONFIRMED, PORT_UP, false, JOIN_TIMEOUT_MS);
   if(ACTIVATION_MODE == OTAA){
     lcdShow(2, "Loading...");
-    while(lorae5.join() == false);
+    unsigned long joinStart = millis();
+    bool joined = false;
+    while(!joined && (millis() - joinStart) < JOIN_TIMEOUT_MS){
+      joined = lorae5.join();
+    }
+    if(!joined) {
+      Serial.println("[LORA] join timeout");
+      lcdShow(2, "LoRa fail");
+    }
     delay(2000);
   }
 
-  sendSeq(1);
+  sendCmd("leds", 1);
   lcdShow(1, "Entrez la");
-  { 
-    char buf[17]; 
-    snprintf(buf, sizeof(buf), "sequence 1/%d", NB_SEQ); lcdShow(2, buf); 
+  {
+    char buf[17];
+    snprintf(buf, sizeof(buf), "sequence 1/%d", NB_SEQ); lcdShow(2, buf);
   }
-  t0 = millis();
+  inputWindowStart = millis();
 }
 
 /* ------------------- LOOP ------------------- */
@@ -252,54 +237,54 @@ void loop(){
   if(gameState == WAIT_SEQ){
     readButtons();
 
-    if(inputLen>0 && !anyHoldActive() && millis()-t0>2000){
-      if(checkSequence(seqIndex)){
-        seqIndex++;
+    if(inputCount>0 && !anyHoldActive() && millis()-inputWindowStart>SEQ_TIMEOUT_MS){
+      if(checkSequence(currentSeq)){
+        currentSeq++;
         lcd.setRGB(0, 255, 0);
         lcdShow(2, "Code valide !");
-        sendBuzz(4);
+        sendCmd("buzz", 4);
 
-        if(seqIndex == NB_SEQ){
+        if(currentSeq == NB_SEQ){
           lcdShow(1, "Passez la carte");
           lcdShow(2, "");
           gameState = WAIT_CARD;
           Serial.println("[GAME] toutes les sequences OK -> WAIT_CARD");
         } else {
-          sendSeq(seqIndex + 1);
+          sendCmd("leds", currentSeq + 1);
           lcdShow(1, "Entrez la");
           char buf[17];
-          snprintf(buf, sizeof(buf), "sequence %d/%d", seqIndex+1, NB_SEQ);
+          snprintf(buf, sizeof(buf), "sequence %d/%d", currentSeq+1, NB_SEQ);
           lcdShow(2, buf);
         }
       } else {
         lcd.setRGB(255, 0, 0);
         lcdShow(1, "Code invalide!");
         lcdShow(2, "Recommencez...");
-        sendBuzz(3);
+        sendCmd("buzz", 3);
         char (*lines)[17] = seqPrint(inputSeq);
-        sendMsg1(lines[0]);
-        sendMsg2(lines[1]);
-        seqIndex = 0;
-        errorTimer = millis();
+        sendCmd("msg1", lines[0]);
+        sendCmd("msg2", lines[1]);
+        currentSeq = 0;
+        errorDisplayStart = millis();
         gameState = SEQ_ERROR;
         Serial.println("[GAME] sequence NOK -> SEQ_ERROR");
       }
 
-      inputLen = 0;
-      t0 = millis();
+      inputCount = 0;
+      inputWindowStart = millis();
     }
-    else if(inputLen==0){ t0 = millis(); }
+    else if(inputCount==0){ inputWindowStart = millis(); }
   }
 
   /* -------- ERREUR SÉQUENCE -------- */
   if(gameState == SEQ_ERROR){
-    if(millis() - errorTimer >= 5000){
+    if(millis() - errorDisplayStart >= ERROR_DISPLAY_MS){
       lcd.setRGB(255, 255, 255);
-      sendSeq(1);
+      sendCmd("leds", 1);
       lcdShow(1, "Entrez la");
-      { 
-        char buf[17]; 
-        snprintf(buf, sizeof(buf), "sequence 1/%d", NB_SEQ); lcdShow(2, buf); 
+      {
+        char buf[17];
+        snprintf(buf, sizeof(buf), "sequence 1/%d", NB_SEQ); lcdShow(2, buf);
       }
       gameState = WAIT_SEQ;
       Serial.println("[GAME] reset -> WAIT_SEQ");
