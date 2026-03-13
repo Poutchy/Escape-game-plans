@@ -10,6 +10,9 @@
     - [2.1. Description](#21-description)
     - [2.2. Modèles 3D](#22-modèles-3d)
     - [2.3. Montage](#23-montage)
+  - [3. Préparation de l'escape game](#3-préparation-de-lescape-game)
+    - [3.1. Préparer la NOTABOMB](#31-préparer-la-notabomb)
+    - [3.2. Placement des éléments](#32-placement-des-éléments)
 
 ## Introduction
 
@@ -76,3 +79,19 @@ Dans l'ordre de montage, il faut :
 ### 2.2. Modèles 3D
 
 ### 2.3. Montage
+
+## 3. Préparation de l'escape game
+
+### 3.1. Préparer la NOTABOMB
+
+Pour préparer la partie, une disquette doit être insérée dans la NOTABOMB. Lors de l'allumage des arduinos, le servo va se déplacer pour bloquer la disquette.
+
+Les 3 arduinos (2 de la NOTABOMB et 1 du talkie-walkie) doivent être allumés et fonctionnels pour que les éléments soient prêts à être utilisés par les joueurs.
+
+### 3.2. Placement des éléments
+
+Une fois la boîte refermée, la NOTABOMB doit être placée et fixée dans la salle, facilement visible et de préférence dans une orientation empêchant de voir l'écran de loin.
+
+Le talkie-walkie doit être placé dans un endroit facilement accessible.
+
+Pour les fiches de manuels, la fiche d'introduction de la machine doit être placée à proximité directe de la NOTABOMB, la fiche de référence du code morse doit être placée à proximité directe du talkie-walkie, et les autres feuilles doivent être fixées dans des endroits cachés de la salle, mais accessibles pour les joueurs. Exemples : Sous une table, derrière une porte, dans un tiroir...
