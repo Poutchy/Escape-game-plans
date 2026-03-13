@@ -195,7 +195,6 @@ const uint8_t wordSeqLen[5] = {
 };
 
 // LISTE_MOTS progress
-uint8_t currentList = 0;
 uint8_t currentWord = 0;
 
 // Codes d'erreur aléatoires (générés à ERREUR_CRITIQUE)

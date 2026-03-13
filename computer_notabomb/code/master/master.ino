@@ -265,7 +265,6 @@ void enterState(GameState s){
     break;
 
   case LISTE_MOTS:
-    currentList = 0;
     currentWord = 0;
     lcd.setRGB(255, 255, 255);
     lcdShow(1, "Liste de mots");
@@ -313,8 +312,10 @@ void enterState(GameState s){
   }
   static const char* stateNames[] = {
     "ERREUR_CRITIQUE","MODE_MANUAL","JOURNAUX_1",
-    "DEBUG_SEQ","JOURNAUX_2","LISTE_MOTS","CODE_RESOLU2",
-    "JOURNAUX_3","REDEMARRAGE","LOGIN","WAIT_CARD","SEQ_ERROR","WIN"
+    "DEBUG_SEQ","CODE_RESOLU","CODE_MODIFIE_1",
+    "JOURNAUX_2","LISTE_MOTS","CODE_RESOLU2",
+    "CODE_MODIFIE_2","JOURNAUX_3","REDEMARRAGE",
+    "LOGIN","WAIT_CARD","SEQ_ERROR","WIN"
   };
   Serial.print("[STATE] -> "); Serial.println(stateNames[s]);
 }
@@ -351,7 +352,7 @@ void exitError(){
   case LISTE_MOTS:
     lcdShow(1, "Liste de mots");
     lcdShow(2, "");
-    sendCmd("list", currentList + 1);  // re-start slave list (was stopped in enterError)
+    sendCmd("list", currentWord + 1);  // re-start slave list at current progress
     break;
   default:
     enterState(prevState);  // full re-init for simple states
@@ -362,8 +363,10 @@ void exitError(){
   inputWindowStart = millis();
   static const char* stateNames[] = {
     "ERREUR_CRITIQUE","MODE_MANUAL","JOURNAUX_1",
-    "DEBUG_SEQ","JOURNAUX_2","LISTE_MOTS","CODE_RESOLU2",
-    "JOURNAUX_3","REDEMARRAGE","LOGIN","WAIT_CARD","SEQ_ERROR","WIN"
+    "DEBUG_SEQ","CODE_RESOLU","CODE_MODIFIE_1",
+    "JOURNAUX_2","LISTE_MOTS","CODE_RESOLU2",
+    "CODE_MODIFIE_2","JOURNAUX_3","REDEMARRAGE",
+    "LOGIN","WAIT_CARD","SEQ_ERROR","WIN"
   };
   Serial.print("[STATE] recover -> "); Serial.println(stateNames[prevState]);
 }
@@ -473,9 +476,10 @@ void loop(){
     if(matchSeq(wordSeqs[currentWord], wordSeqLen[currentWord])){
       sendCmd("buzz", 4);
       currentWord++;
-      sendCmd("list", currentList + 1);
       if(currentWord == 5){
         enterState(CODE_RESOLU2);
+      } else {
+        sendCmd("list", currentWord + 1);
       }
     } else {
       enterError(LISTE_MOTS);
