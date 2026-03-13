@@ -253,6 +253,9 @@ void loop(){
     readButtons();
 
     if(inputLen>0 && !anyHoldActive() && millis()-t0>2000){
+      char (*lines)[17] = seqPrint(inputSeq);
+      sendMsg1(lines[0]);
+      sendMsg2(lines[1]);
       if(checkSequence(seqIndex)){
         seqIndex++;
         lcd.setRGB(0, 255, 0);
@@ -276,9 +279,6 @@ void loop(){
         lcdShow(1, "Code invalide!");
         lcdShow(2, "Recommencez...");
         sendBuzz(3);
-        char (*lines)[17] = seqPrint(inputSeq);
-        sendMsg1(lines[0]);
-        sendMsg2(lines[1]);
         seqIndex = 0;
         errorTimer = millis();
         gameState = SEQ_ERROR;
