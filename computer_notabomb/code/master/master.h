@@ -154,9 +154,9 @@ const uint8_t seqLen[] = {
 #define MODULE_LED P(BR2), S(BB1), S(BR1), S(BB1), R(BR2)
 #define MODIFY_CODE_1 S(BB1), P(BB2), S(BR2), S(BR2), S(BR2), R(BB2), S(BR2)
 #define MODULE_WORD P(BR2), S(BB2), S(BB2), S(BB1), R(BR2)
-#define MODIFY_CODE_2 S(BB1), P(BB2), S(BB1), S(BR1), S(BB1), R(BB2), S(BR2)
+#define CODE_MODIFIE_2 S(BB1), P(BB2), S(BB1), S(BR1), S(BB1), R(BB2), S(BR2)
 #define REBOOT P(BB1), S(BB2), S(BB2), S(BB2), R(BB1) 
-#define PASSWORD S(BB1), S(BB2), S(BR1), S(BR2)
+#define PASSWORD S(BR1), S(BR2), S(BB1), S(BB2)
 
 SequenceEvent seqA[] = { MANUAL_MODE };      // ERREUR_CRITIQUE → MODE_MANUAL
 SequenceEvent seqB[] = { JOURNAL };          // MODE_MANUAL     → JOURNAUX_1
@@ -164,7 +164,7 @@ SequenceEvent seqD[] = { MODULE_LED };       // JOURNAUX_1      → DEBUG_SEQ   
 SequenceEvent seqC[] = { MODIFY_CODE_1 };    // CODE_RESOLU     → CODE_MODIFIE
 SequenceEvent seqJ[] = { JOURNAL };          // CODE_MODIFIE    → JOURNAUX_2
 SequenceEvent seqE[] = { MODULE_WORD };      // JOURNAUX_2      → LISTE_MOTS → CODE_RESOLU2
-SequenceEvent seqK[] = { MODIFY_CODE_2 };    // CODE_RESOLU2    → CODE_MODIFIE_2
+SequenceEvent seqK[] = { CODE_MODIFIE_2 };    // CODE_RESOLU2    → CODE_MODIFIE_2
 SequenceEvent seqF[] = { JOURNAL };          // CODE_MODIFIE_2  → JOURNAUX_3
 SequenceEvent seqG[] = { REBOOT };           // JOURNAUX_3      → REDEMARRAGE → LOGIN
 SequenceEvent seqI[] = { PASSWORD };         // LOGIN           → WAIT_CARD

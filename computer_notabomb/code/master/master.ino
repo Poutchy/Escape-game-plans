@@ -486,7 +486,6 @@ void loop(){
       currentWord++;
       if(currentWord == 4){
         sendCmd("list", 0);
-
         enterState(CODE_RESOLU2);
       } else {
         sendCmd("list", currentWord + 1);
