@@ -12,6 +12,11 @@ volatile LedState leds_state[] = {LedState::OFF, LedState::OFF, LedState::OFF, L
 unsigned long lastBlink = 0;
 bool blinkState = LOW;
 
+// Etat de la list
+int currListId = -1;
+int currWordId = 0;
+unsigned long listTimer = 0;
+
 // Serrure avec le servo moteur
 Servo lock;
 
@@ -85,6 +90,43 @@ void updateBuzzer()
     buzzerTimer = millis();
   }
 }
+void showListElem()
+{
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print(LISTES[currListId][currWordId]);
+  lcd.setCursor(0, 1);
+  lcd.print(currWordId + 1);
+  currWordId = (currWordId + 1) % NB_WORDS;
+}
+void handleList(int listId)
+{
+  currListId = listId - 1;
+  if (currListId < 0 || currListId >= NB_LIST)
+  {
+    currListId = -1;
+    Serial.println("[LISTE] stopped");
+  }
+  else
+  {
+    Serial.print("[LISTE] started ");
+    Serial.println(currListId);
+    currWordId = 0;
+    showListElem();
+    listTimer = millis();
+  }
+}
+void updateList()
+{
+  if (currListId >= 0)
+  {
+    if (millis() - listTimer > WORD_DELAY)
+    {
+      showListElem();
+      listTimer = millis();
+    }
+  }
+}
 void key_open()
 {
   Serial.println("OPENING...");
@@ -97,6 +139,14 @@ void key_close()
 }
 void handleMsg(int line, const char *text)
 {
+  if (currListId >= 0)
+  {
+    Serial.println("MESSAGE canceled");
+    Serial.print(line);
+    Serial.print(" : ");
+    Serial.println(text);
+    return;
+  }
   Serial.print("MESSAGE line ");
   Serial.print(line);
   Serial.print(": ");
@@ -176,27 +226,27 @@ void handleLed(int id)
   Serial.println(id);
   switch (id)
   {
-    case 1:
-      setLedPattern(LedState::BLINK, LedState::OFF, LedState::ON, LedState::BLINK);
-      break;
-    case 2:
-      setLedPattern(LedState::ON, LedState::BLINK, LedState::OFF, LedState::OFF);
-      break;
-    case 3:
-      setLedPattern(LedState::BLINK, LedState::ON, LedState::BLINK, LedState::ON);
-      break;
-    case 4:
-      setLedPattern(LedState::ON, LedState::BLINK, LedState::OFF, LedState::BLINK);
-      break;
-    case 5:
-      setLedPattern(LedState::OFF, LedState::OFF, LedState::ON, LedState::ON);
-      break;
-    case 6:
-      setLedPattern(LedState::BLINK, LedState::BLINK, LedState::BLINK, LedState::BLINK);
-      break;
-    default:
-      setLedPattern(LedState::OFF, LedState::OFF, LedState::OFF, LedState::OFF);
-      break;
+  case 1:
+    setLedPattern(LedState::BLINK, LedState::OFF, LedState::ON, LedState::BLINK);
+    break;
+  case 2:
+    setLedPattern(LedState::ON, LedState::BLINK, LedState::OFF, LedState::OFF);
+    break;
+  case 3:
+    setLedPattern(LedState::BLINK, LedState::ON, LedState::BLINK, LedState::ON);
+    break;
+  case 4:
+    setLedPattern(LedState::ON, LedState::BLINK, LedState::OFF, LedState::BLINK);
+    break;
+  case 5:
+    setLedPattern(LedState::OFF, LedState::OFF, LedState::ON, LedState::ON);
+    break;
+  case 6:
+    setLedPattern(LedState::BLINK, LedState::BLINK, LedState::BLINK, LedState::BLINK);
+    break;
+  default:
+    setLedPattern(LedState::OFF, LedState::OFF, LedState::OFF, LedState::OFF);
+    break;
   }
 }
 void handleCommand(char *c)
@@ -220,6 +270,8 @@ void handleCommand(char *c)
     handleBuzzer(val);
   else if (strcmp(c, "leds") == 0)
     handleLed(val);
+  else if (strcmp(c, "list") == 0)
+    handleList(val);
   else if (strcmp(c, "open") == 0)
     key_open();
   else if (strcmp(c, "close") == 0)
@@ -248,7 +300,7 @@ void handleSerial()
 
 void setup()
 {
-  Serial.begin(9600);    // debug
+  Serial.begin(9600);  // debug
   Serial1.begin(4800); // UART
 
   lcd.begin(16, 2);
@@ -275,4 +327,5 @@ void loop()
   handleSerial();
   updateLeds();
   updateBuzzer();
+  updateList();
 }

@@ -46,11 +46,25 @@ enum LedState
   BLINK
 };
 
+// listes
+#define NB_LIST 5
+#define NB_WORDS 5
+#define WORD_DELAY 1000
+const char* LISTES[NB_LIST][NB_WORDS] = {
+  {"Disquette", "Windows", "Cable", "Logiciel", "Atari"},
+  {"Dossier", "Pixel", "Bureau", "BIOS", "Fichier"},
+  {"Atari", "Pixel", "Cathodique", "Fichier", "Disquette"},
+  {"Windows", "Sega", "Modem", "Disquette", "Joystick"},
+  {"Windows", "BIOS", "Bureau", "Dossier", "Cable"}
+};
+
 // Fonctions
 void setLedPattern(LedState r, LedState y, LedState g, LedState b);
 void updateLeds();
 void startBuzzer(const Note seq[], int len);
 void updateBuzzer();
+void hanleList(int listId);
+void updateList(int listId);
 void key_open();
 void key_close();
 void handleMsg(int line, const char *text);
