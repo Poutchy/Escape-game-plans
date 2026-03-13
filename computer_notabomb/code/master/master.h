@@ -21,9 +21,17 @@ byte uidWinSize = 4;
 
 rgb_lcd lcd;
 
-#define NB_SEQ 5
-#define DEBOUNCE 20 // mécanique anti-rebond (20ms)
-#define LONG_PRESS 1000
+#define NB_SEQ           5
+#define DEBOUNCE         20     // mécanique anti-rebond (20ms)
+#define LONG_PRESS       1000
+#define DEBUG_BAUD       115200
+#define SLAVE_BAUD       4800
+#define SEQ_TIMEOUT_MS   2000   // idle window to validate a sequence
+#define ERROR_DISPLAY_MS 3000   // how long the error screen stays
+#define INPUT_MAX        20     // max events in a sequence
+#define LCD_COLS         16
+#define LCD_ROWS         2
+#define JOIN_TIMEOUT_MS  60000  // max time to wait for LoRaWAN OTAA join
 
 // Macros de boutons
 #define BUTTONS X(B, 1, 7, 6) X(B, 2, 3, 2) X(R, 1, 9, 8) X(R, 2, 5, 4)
@@ -67,28 +75,23 @@ void releaseHold(uint8_t i);
 char (*seqPrint(SequenceEvent* seq))[17];
 void lcdShow(uint8_t line, const char *text);
 void loraSend(uint8_t* payload, uint8_t size);
-void sendSeq(uint8_t id);
-void sendBuzz(uint8_t id);
-void sendMsg1(const char *msg);
-void sendMsg2(const char *msg);
-void sendCol(uint8_t col);
-void sendOpen();
-void sendClose();
+void sendCmd(const char* key, const char* val = nullptr);
+void sendCmd(const char* key, int val);
 void handleCard();
 
 // États boutons
-bool raw[NUM_BTN] = {HIGH, HIGH, HIGH, HIGH};
-bool db[NUM_BTN] = {HIGH, HIGH, HIGH, HIGH};
-unsigned long tdb[NUM_BTN] = {0};
-unsigned long tpress[NUM_BTN] = {0};
-bool longSent[NUM_BTN] = {false, false, false, false};
-int8_t hold = -1;
+bool rawState[NUM_BTN]          = {HIGH, HIGH, HIGH, HIGH};
+bool buttonState[NUM_BTN]       = {HIGH, HIGH, HIGH, HIGH};
+unsigned long debounceTime[NUM_BTN] = {0};
+unsigned long pressTime[NUM_BTN]    = {0};
+bool longTriggered[NUM_BTN]     = {false, false, false, false};
+int8_t holdButton = -1;
 
-SequenceEvent inputSeq[20];
-uint8_t inputLen = 0;
-uint8_t seqIndex = 0;
-unsigned long t0 = 0;
-unsigned long errorTimer = 0;
+SequenceEvent inputSeq[INPUT_MAX];
+uint8_t inputCount = 0;
+uint8_t currentSeq = 0;
+unsigned long inputWindowStart = 0;
+unsigned long errorDisplayStart = 0;
 
 // Macros séquences
 #define S(p) {SHORT_INPUT, p}
