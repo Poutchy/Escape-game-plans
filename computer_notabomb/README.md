@@ -2,11 +2,17 @@
 
 - [Équipe 7](#équipe-7)
   - [Introduction](#introduction)
-  - [Machine principale - NOTABOMB](#machine-principale---notabomb)
-    - [Description](#description)
-    - [Modèles 3D](#modèles-3d)
-    - [Montage](#montage)
-  - [Talkie-Walkie](#talkie-walkie)
+  - [1. Machine principale - NOTABOMB](#1-machine-principale---notabomb)
+    - [1.1. Description](#11-description)
+    - [1.2. Modèles 3D](#12-modèles-3d)
+    - [1.3. Montage](#13-montage)
+  - [2. Talkie-Walkie](#2-talkie-walkie)
+    - [2.1. Description](#21-description)
+    - [2.2. Modèles 3D](#22-modèles-3d)
+    - [2.3. Montage](#23-montage)
+  - [3. Préparation de l'escape game](#3-préparation-de-lescape-game)
+    - [3.1. Préparer la NOTABOMB](#31-préparer-la-notabomb)
+    - [3.2. Placement des éléments](#32-placement-des-éléments)
 
 ## Introduction
 
@@ -21,13 +27,13 @@ Notre projet est une composé de deux éléments : une machine principale et un 
 
 Le fonctionnement général est inspiré du jeu "Keep Talking and Nobody Explodes". Alors que l'un des joueurs sera devant la machine principale, les autres joueurs devront trouver les morceaux de manuels cachés (et scotchés) dans la salle pour aider le joueur devant la machine à résoudre les différentes énigmes. Le talkie-walkie est utilisé pour certaines énigmes, en fournissant des messages audio à décoder et utiliser.
 
-## Machine principale - NOTABOMB
+## 1. Machine principale - NOTABOMB
 
-### Description
+### 1.1. Description
 
 Le "Numerically Operated Terminal Assisted By Occasional Manual Brute-force" ou "NOTABOMB", est une machine inspiré de l'écran Atari SM124 dans son design, imprimée en 3D et équipée de composants électroniques opérés par deux arduinos. La machine permet de débloquer l'une des disquettes de l'escape game. Dans l'histoire entourant le jeu, elle fait parti des machines créées par l'entreprise VEEC, et est un processeur de calcul très avancé qui a malheureusement planté durant ses opérations. Les joueurs ayant besoin de la disquette qu'elle contient, ils devront effectuer les dernières instructions manuellement pour débloquer la machine et récupérer la disquette.
 
-### Modèles 3D
+### 1.2. Modèles 3D
 
 Dans le dossier `models` se trouvent les modèles de la machine principale au format stl.
 
@@ -42,7 +48,7 @@ Les différentes pièces sont :
 
 Afin de prévisualiser les différentes pièces, il est possible de les consulter sur Onshape en suivant [ce lien.](https://cad.onshape.com/documents/be6f37f78814590b17c3a1c2/w/f588fba8efcb07c5e2274cb0/e/107cf3115431e2fff5c39ad0)
 
-### Montage
+### 1.3. Montage
 
 Dans l'ordre de montage, il faut :
 
@@ -66,4 +72,26 @@ Dans l'ordre de montage, il faut :
    9. Effectuer tout les branchements sur les arduinos
    10. Imbriquer la `boite` et la `disquette` dans le `socle`
 
-## Talkie-Walkie
+## 2. Talkie-Walkie
+
+### 2.1. Description
+
+### 2.2. Modèles 3D
+
+### 2.3. Montage
+
+## 3. Préparation de l'escape game
+
+### 3.1. Préparer la NOTABOMB
+
+Pour préparer la partie, une disquette doit être insérée dans la NOTABOMB. Lors de l'allumage des arduinos, le servo va se déplacer pour bloquer la disquette.
+
+Les 3 arduinos (2 de la NOTABOMB et 1 du talkie-walkie) doivent être allumés et fonctionnels pour que les éléments soient prêts à être utilisés par les joueurs.
+
+### 3.2. Placement des éléments
+
+Une fois la boîte refermée, la NOTABOMB doit être placée et fixée dans la salle, facilement visible et de préférence dans une orientation empêchant de voir l'écran de loin.
+
+Le talkie-walkie doit être placé dans un endroit facilement accessible.
+
+Pour les fiches de manuels, la fiche d'introduction de la machine doit être placée à proximité directe de la NOTABOMB, la fiche de référence du code morse doit être placée à proximité directe du talkie-walkie, et les autres feuilles doivent être fixées dans des endroits cachés de la salle, mais accessibles pour les joueurs. Exemples : Sous une table, derrière une porte, dans un tiroir...

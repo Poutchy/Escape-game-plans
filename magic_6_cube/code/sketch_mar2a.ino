@@ -21,13 +21,13 @@ struct Secret {
 };
 
 Secret secrets[] = {
-  { { 1, 1, 1, 1 }, "    Bouton rouge pour remettre un code" },
-  { { 1, 3, 5, 2 }, "    La troisième cle commence par V" },
-  { { 5, 6, 1, 3 }, "    Les cles encore utilisables contiennent toutes la lettre B" },
-  { { 4, 6, 2, 3 }, "    La cle 1 commence par une lettre plus proche de A que celle de la 2e" },
-  { { 2, 3, 4, 1 }, "    Une cle valide ne commence jamais par R" },
-  { { 5, 4, 1, 6 }, "    Une seule cle fonctionnelle contient la lettre O" },
-  { { 3, 2, 3, 5 }, "    Les cles valides ne commencent jamais par B" },
+  { { 1, 1, 1, 1 }, "    Magic 6 Cube" },
+  { { 1, 3, 5, 2 }, "    Les cles encore utilisables contiennent toutes la lettre B" }, 
+  { { 5, 6, 1, 3 }, "    La cle 3 commence par V" },
+  { { 4, 6, 2, 3 }, "    La cle 1 commence par une lettre plus proche de A que celle de la cle 2" },
+  { { 5, 4, 1, 6 }, "    Une seule cle commence par une voyelle" },
+  { { 2, 3, 4, 1 }, "    Les cles valides ne commencent jamais par B" },
+  { { 3, 2, 3, 5 }, "    Une cle valide ne commence jamais par R" },
 };
 const int NUM_SECRETS = sizeof(secrets) / sizeof(secrets[0]);
 
@@ -229,7 +229,7 @@ void loop() {
           unlockedMessage = secrets[s].message;
           scrollPos = 0;
 
-          Serial.print("Code valide : ");
+          Serial.print("Code v*lide : ");
           Serial.println(secrets[s].message);
           break;
         }
