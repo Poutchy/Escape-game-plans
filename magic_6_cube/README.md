@@ -76,10 +76,10 @@ Chaque orientation correspond à :
 
 | Orientation | Code secret | Texte | |
 |:-------------------------------------:|:-----------:|:-----:|:-:|
-| Plat, Gauche, Avant, Retourne | V - B - O - R | Les clés encore utilisables contiennent la lettre B | ✅3 |
-| Avant, Arrière, Plat, Gauche | O - M - V - B | La cle 3 commence par V | ✅2 |
-| Droite, Arrière, Retourne, Gauche | J - M - R - B | La cle 1 commence par une lettre plus proche de A que celle de la cle 2 | ✅1 |
-| Avant, Droite, Plat, Arrière | O - J - V - M | Une seule cle commence par une voyelle | ❌ |
+| Plat, Gauche, Avant, Retourne | V - B - O - R | Les clés encore utilisables contiennent la lettre B | ✅3 | // NotBomb
+| Avant, Arrière, Plat, Gauche | O - M - V - B | La cle 3 commence par V | ✅2 | // Distributeur
+| Droite, Arrière, Retourne, Gauche | J - M - R - B | La cle 1 commence par une lettre plus proche de A que celle de la cle 2 | ✅1 | // Télégraphe
+| Avant, Droite, Plat, Arrière | O - J - V - M | Une seule cle commence par une voyelle | ❌ | // Téléphone
 | Retourne, Droite, Gauche, Plat | R - B - J - V | Les cles valides ne commencent pas par B | ❌ |
 | Gauche, Retourne, Droite, Avant | B - R - B - O | Une cle valide ne commence jamais par R | ❌ |
 | Plat, Plat, Plat, Plat | V - V - V - V | Message 1 | X |
